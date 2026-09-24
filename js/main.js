@@ -247,14 +247,17 @@ const PRESETS = {
   inside: { pos: [0.15, 1.6, 1.1], look: [0, 2.7, -3], label: 'Inside the funnel' },
   lawn: { pos: [-14, 1.65, 30], look: [0, 2.2, 0], label: 'Across the lawn' },
   side: { pos: [-13, 1.65, 3], look: [0, 2.4, 0.4], label: 'From the path' },
-  bench: { pos: [5.4, 1.2, 0.2], look: [0, 2.6, 1.2], label: 'Bench' },
+  bench: { pos: [5.0, 1.2, 1.75], look: [0, 2.4, 0.6], label: 'Bench' },
   bay: { pos: [-6, 1.65, -14], look: [0, 2.5, 0], label: 'Toward the bridge' },
   aerial: { pos: [60, 55, 80], look: [0, 0, 0], label: 'Aerial' },
+  // World-fixed camera matched to the proposal's aerial "Art Location" drawing
+  drawing: { pos: [17.99, 12, 11.75], look: [0.56, 2.94, 8.0], world: true, label: 'Proposal drawing view' },
 };
 export function gotoPreset(name, instant = false) {
   const p = PRESETS[name];
   const m = sculpture.group.matrixWorld;
-  const pos = new THREE.Vector3(...p.pos).applyMatrix4(m), look = new THREE.Vector3(...p.look).applyMatrix4(m);
+  const pos = new THREE.Vector3(...p.pos), look = new THREE.Vector3(...p.look);
+  if (!p.world) { pos.applyMatrix4(m); look.applyMatrix4(m); }
   if (name === 'bay') { // from the promenade by the seawall, facing the Bay Bridge's centre anchorage
     const w = planToWorld(18, 80);
     pos.set(w.x, 0, w.z);

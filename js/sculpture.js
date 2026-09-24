@@ -446,18 +446,20 @@ export class Sculpture {
       this.upFixtures.push(spot);
     }
     this.lensMat = lensMat;
-    // bench beside the pad, as drawn in the proposal
+    // bench by the pad, as drawn in the proposal
     const wood = new THREE.MeshStandardMaterial({ color: 0x7a4a2a, roughness: 0.72 });
     const steel = new THREE.MeshStandardMaterial({ color: 0x1b1c1d, roughness: 0.45, metalness: 0.6 });
     const bench = new THREE.Group();
-    for (let i = 0; i < 5; i++) { const sl = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.035, 2.4), wood); sl.position.set(-0.2 + i * 0.09, 0.45, 0); bench.add(sl); }
-    for (let i = 0; i < 4; i++) { const sl = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.075, 2.4), wood); sl.position.set(0.25 + i * 0.012, 0.55 + i * 0.1, 0); sl.rotation.z = 0.15; bench.add(sl); }
-    for (const z of [-1.1, 0, 1.1]) {
+    for (let i = 0; i < 5; i++) { const sl = new THREE.Mesh(new THREE.BoxGeometry(0.075, 0.035, 3.0), wood); sl.position.set(-0.2 + i * 0.09, 0.45, 0); bench.add(sl); }
+    for (let i = 0; i < 4; i++) { const sl = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.075, 3.0), wood); sl.position.set(0.25 + i * 0.012, 0.55 + i * 0.1, 0); sl.rotation.z = 0.15; bench.add(sl); }
+    for (const z of [-1.4, 0, 1.4]) {
       const leg = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.43, 0.05), steel); leg.position.set(0, 0.215, z); bench.add(leg);
       const bk = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.45, 0.05), steel); bk.position.set(0.28, 0.66, z); bk.rotation.z = 0.15; bench.add(bk);
     }
-    bench.position.set(4.9, 0, 0.4);
-    bench.rotation.y = -Math.PI / 2 + 0.5;
+    // On the path just past the pad's end, backing onto the planted island,
+    // facing the lawn (matched to the proposal's aerial drawing).
+    bench.position.set(5.2, 0, 1.95);
+    bench.rotation.y = Math.PI / 2;
     bench.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.layers.enable(2); o.layers.enable(3); } });
     this.group.add(bench);
   }
