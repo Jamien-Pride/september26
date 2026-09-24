@@ -7,10 +7,14 @@ import { SITE, M_PER_DEG_LAT, M_PER_DEG_LON, elevToY } from './geo.js';
 
 export async function loadTerrainData(base = 'data/') {
   const meta = await (await fetch(base + 'terrain.json')).json();
-  const [nb, fb] = await Promise.all([
-    fetch(base + 'terrain_near.bin').then((r) => r.arrayBuffer()),
-    fetch(base + 'terrain_far.bin').then((r) => r.arrayBuffer()),
-  ]);
+  // Heights are int16 little-endian decimetres, base64-packed in JSON.
+  const grid = async (name) => {
+    const { b64 } = await (await fetch(base + name)).json();
+    const bin = atob(b64), u8 = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    return u8.buffer;
+  };
+  const [nb, fb] = await Promise.all([grid('terrain_near.json'), grid('terrain_far.json')]);
   const near = { ...meta.near, h: new Int16Array(nb) };
   const far = { ...meta.far, h: new Int16Array(fb) };
   const sampleGrid = (g, x, z) => {
