@@ -487,9 +487,9 @@ export class Sculpture {
     tu.uW2L.value.copy(this.group.matrixWorld).invert();
     tu.uSunL.value.copy(sunDirW).transformDirection(tu.uW2L.value);
     tu.uSunRad.value.set(sunRad.r, sunRad.g, sunRad.b);
-    tu.uUplight.value = uplight * 3.0;
-    for (const s of this.upFixtures) s.intensity = uplight * 60;
-    this.lensMat.emissiveIntensity = uplight * 6;
+    tu.uUplight.value = uplight * 10; // matches the spot intensity (cd) for traced reflections
+    for (const s of this.upFixtures) s.intensity = uplight * 12;
+    this.lensMat.emissiveIntensity = uplight * 3;
   }
 
   // Walk-mode collision: is point (world) blocked by the panel walls?

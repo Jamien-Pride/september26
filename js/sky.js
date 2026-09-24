@@ -45,8 +45,9 @@ export class SkySystem {
           vec3 col = mix(hor, zen, pow(alt, 0.5));
           // urban skyglow: SF (SW-W) and Oakland (E)
           float az = atan(d.x, -d.z);
-          float sf = exp(-pow((az - (-2.35))/0.9, 2.0)) + 0.8*exp(-pow((az-1.6)/0.8,2.0));
-          col += vec3(0.055,0.032,0.018) * sf * exp(-alt*9.0) * (1.0+uFog*2.0);
+          float a1 = atan(sin(az + 2.35), cos(az + 2.35)), a2 = atan(sin(az - 1.6), cos(az - 1.6));
+          float sf = exp(-pow(a1/0.9, 2.0)) + 0.8*exp(-pow(a2/0.8, 2.0));
+          col += vec3(0.030,0.018,0.010) * sf * exp(-alt*9.0) * (1.0+uFog*2.0);
           // stars
           vec3 q = floor(d*380.0);
           float s = h(q);

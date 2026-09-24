@@ -5,7 +5,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-import { SITE, bearingVec, elevToY } from './geo.js';
+import { SITE, bearingVec, elevToY, planToWorld } from './geo.js';
 import { sunPosition, moonPosition, dirFromAzEl, sunTransmittance, pacificToDate, pacificParts, dayEvents, tzAbbrev } from './sun.js';
 import { SkySystem, skyAmbient } from './sky.js';
 import { loadTerrainData, buildLandcoverTexture, buildTerrain, classify } from './terrain.js';
@@ -255,8 +255,10 @@ export function gotoPreset(name, instant = false) {
   const p = PRESETS[name];
   const m = sculpture.group.matrixWorld;
   const pos = new THREE.Vector3(...p.pos).applyMatrix4(m), look = new THREE.Vector3(...p.look).applyMatrix4(m);
-  if (name === 'bay') { // face the Bay Bridge's centre anchorage from here
-    look.set(-320, 60, 2230);
+  if (name === 'bay') { // from the promenade by the seawall, facing the Bay Bridge's centre anchorage
+    const w = planToWorld(18, 80);
+    pos.set(w.x, 0, w.z);
+    look.set(-320, 45, 2230);
   }
   pos.y = heightFn(pos.x, pos.z) + p.pos[1];
   if (state.mode === 'walk') {
@@ -359,7 +361,8 @@ function updateSun() {
   sunLight.userData.dir = L.clone();
   // exposure: meter for an 18% grey card lying in the open (camera/eye adaptation)
   const E = shared.sunRad.value.y * Math.max(sunDir.y, 0) + Math.PI * amb[1] * 1.1 + 0.0004;
-  const exposure = THREE.MathUtils.clamp(Math.pow(Math.PI / E, 0.86) * EXPOSURE_BIAS, 0.3, 60);
+  // the eye never fully adapts to night: cap the gain so dusk and night still read as dark
+  const exposure = THREE.MathUtils.clamp(Math.pow(Math.PI / E, 0.86) * EXPOSURE_BIAS, 0.3, 7);
   renderer.toneMappingExposure = exposure;
   if (bloomPass) bloomPass.threshold = 3.5 / Math.sqrt(exposure);
   // lights come on at civil dusk
@@ -505,7 +508,7 @@ async function main() {
     return;
   }
   progress('Ready', 1);
-  window.__app = { THREE, scene, camera, renderer, state, shared, sculpture, reflected, gotoPreset, setMode, sunInfo, get orbit() { return orbit; }, step };
+  window.__app = { sunPosition, pacificToDate, THREE, scene, camera, renderer, state, shared, sculpture, reflected, gotoPreset, setMode, sunInfo, get orbit() { return orbit; }, step };
   document.body.classList.add('ready');
   requestAnimationFrame(frame);
 }

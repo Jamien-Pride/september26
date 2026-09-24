@@ -31,7 +31,7 @@ export class BayWater {
         uMoonDir: uniforms.moonDir,
         uMoonColor: uniforms.moonColor,
         uWind: uniforms.wind,
-        uWaterColor: { value: new THREE.Color(0.016, 0.036, 0.034) },
+        uWaterColor: { value: new THREE.Color(0.014, 0.032, 0.026) },
         uWaterY: uniforms.waterY,
       },
       vertexShader: /* glsl */`
@@ -62,14 +62,14 @@ export class BayWater {
           mat2 rot = mat2(wdir.x, -wdir.y, wdir.y, wdir.x);
           vec2 p = rot * vWPos.xz;
           float t = uTime;
-          float chop = mix(0.35, 1.25, uWind);
+          float chop = mix(0.6, 1.9, uWind);
           vec3 n = nrm(p/5.1  + vec2( t*0.043, 0.0)) * 0.9
                  + nrm(p/13.7 + vec2( t*0.021, t*0.007)) * 1.0
                  + nrm(p/37.0 - vec2(-t*0.011, t*0.009)) * 0.8
                  + nrm(p/1.9  + vec2( t*0.09, -t*0.03)) * 0.45;
           n.xz = (rot * n.xz);
           // fade detail with distance: far water is optically smoother but glittery
-          float fade = 0.35 + 0.65/(1.0 + dist*0.004);
+          float fade = 0.5 + 0.5/(1.0 + dist*0.004);
           n = normalize(vec3(n.x*chop*0.34*fade, 1.0, n.z*chop*0.34*fade));
           float NdV = max(dot(n, V), 0.001);
           float F = 0.02 + 0.98*pow(1.0-NdV, 5.0);
