@@ -26,7 +26,8 @@ are in notes/; the site wind analysis is tools/site_wind.py -> data/site_wind.js
   9.2 ft NAVD88; floors >= 12.7. Fill + shoal sand ~30-50 ft.
 
 ## Still open
-- Force coefficient for an open funnel (1.2-1.6 assumed).
+- Force coefficient: 3D OpenFOAM runs (tools/cfd, data/cfd_results.json) give Cf ~1.5 after an
+  8% hollow-hemisphere correction; force acts 8.1 ft up; uplift ~0.5x. Gusts/flutter not modelled.
 - No boring log for Cityside Park; no as-built park grade.
 - Solaracks page (ISO 9223 distances) blocked by CAPTCHA; replaced with ASSDA.
 - amlegal.com blocked automated reads; Sec. 148/139 read from their ordinances.

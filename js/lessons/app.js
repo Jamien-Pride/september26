@@ -309,8 +309,13 @@ const lab = new WindLab($('windplan'), $('windsec'), (st) => {
   if (top > 26) { flag.className = 'tag hot'; flag.textContent = 'Past the SF hazard level (26 mph)'; }
   else if (top > 11) { flag.className = 'tag warn'; flag.textContent = 'Above walking comfort (11 mph)'; }
   else { flag.className = 'tag ok'; flag.textContent = 'Comfortable'; }
-  const a = Math.abs(lab.delta) * D2R, area = 175 * Math.abs(Math.cos(a)) + 82 * Math.abs(Math.sin(a));
-  $('w-force').textContent = `${Math.round(0.00256 * free * free * 1.4 * area).toLocaleString()} lbf`;
+  // 3D CFD force coefficient on 175 sq ft vs angle off the mouth axis (tools/cfd, corrected +8.7% by the
+  // hollow-hemisphere check); head-height wind scaled to the 7 ft reference height (log profile, x1.128 in pressure).
+  const d = Math.min(180, Math.abs(((lab.delta % 360) + 540) % 360 - 180));
+  const T = [[0, 1.48], [19, 1.48], [41, 1.49], [90, 0.47], [135, 0.80], [180, 1.01]];
+  let cf = T[T.length - 1][1];
+  for (let i = 1; i < T.length; i++) if (d <= T[i][0]) { const [x0, y0] = T[i - 1], [x1, y1] = T[i]; cf = y0 + (y1 - y0) * (d - x0) / (x1 - x0); break; }
+  $('w-force').textContent = `${Math.round(0.00256 * free * free * 1.128 * cf * 175).toLocaleString()} lbf (Cf ${cf.toFixed(2)})`;
   $('w-warm').textContent = st.warm < 1 ? `Solver settling… ${Math.round(st.warm * 100)}%` : 'Flow settled. Values fluctuate as eddies shed.';
 });
 lab.freeMph = 14;

@@ -176,8 +176,10 @@
           <div><small>Throat wind</small><span class="big" id="w-mph">—</span></div>
         </div>
         <span class="tag" id="w-flag">—</span>
-        <div class="row"><label>Wind force on the funnel (Cf 1.4)</label><span class="num" id="w-force">—</span></div>
-        <div class="row"><label>Design force, 92 mph gust (ASCE 7-22, Exposure D)</label><span class="num">3,400–4,500 lbf</span></div>
+        <div class="row"><label>Wind force on the funnel (3D simulation)</label><span class="num" id="w-force">—</span></div>
+        <div class="row"><label>Design force, 92 mph gust (ASCE 7-22, Exposure D)</label><span class="num">4,000–4,500 lbf</span></div>
+        <div class="row"><label>Overturning moment at the pad</label><span class="num">32,000–37,000 ft-lbf</span></div>
+        <div class="row"><label>Uplift at design wind</label><span class="num">~2,100 lbf</span></div>
         <p class="note" id="w-warm">Solver warming up…</p>
       </div>
       <div class="card">
@@ -193,6 +195,7 @@
         <h2>Why it matters</h2>
         <p>The 175 sq ft mouth is a scoop turned 18–41° off the island's prevailing west and west-southwest winds. SF's walking-comfort yardstick is <b>11 mph</b>, exceeded in no more than 10% of daytime hours. The open lawn already exceeds it in <b>24–36%</b> of them; in the throat that rises to <b>34–64%</b>.</p>
         <p>These are real 2D flow solutions (lattice Boltzmann) on two slices cut from the exact funnel. Each slice lets air escape only one way (around the sides, or over the top), and the solver's low Reynolds number smooths the flow, so treat them as a guide. Settled, they give <b>1.3–1.4×</b> in the throat and up to <b>~2×</b> around the rim edges. Published wind-concentrator studies report 1–2.6×, mostly from simulations, so I use <b>1.2–1.5×</b> for the throat.</p>
+        <p>A full 3D simulation (OpenFOAM, six wind directions) puts the force coefficient at about <b>1.5</b>, highest for the ordinary west wind, acting <b>8 ft</b> up with uplift of about half the horizontal force.</p>
       </div>
     </aside>
   </section>
@@ -264,7 +267,7 @@
   </section>
 
   <footer>
-    Sun positions: NOAA algorithm for the exact site. Glare: ray-traced with the 0.53° solar disk, 62% mirror reflectance and up to 4 bounces, full year at 4-day × 10-minute steps. Wind: D2Q9 lattice Boltzmann on 10 cm cells, qualitative (low Reynolds number); site wind climate from the Treasure Island record (NCEI ISD 724943) bridged to 2021–25 through Oakland airport. Design wind: ASCE Hazard Tool, 92 mph, Exposure D. Codes and sources are listed in the written review. Companion to the <a href="https://claude.ai/artifact/FRHFwggP7Vum2r9MtTPksn" target="_blank" rel="noopener">site visualization</a>.
+    Sun positions: NOAA algorithm for the exact site. Glare: ray-traced with the 0.53° solar disk, 62% mirror reflectance and up to 4 bounces, full year at 4-day × 10-minute steps. Wind: D2Q9 lattice Boltzmann on 10 cm cells, qualitative (low Reynolds number); site wind climate from the Treasure Island record (NCEI ISD 724943) bridged to 2021–25 through Oakland airport. Design wind: ASCE Hazard Tool, 92 mph, Exposure D; force coefficient from a 3D OpenFOAM simulation checked against a hollow hemisphere. Codes and sources are listed in the written review. Companion to the <a href="https://claude.ai/artifact/FRHFwggP7Vum2r9MtTPksn" target="_blank" rel="noopener">site visualization</a>.
   </footer>
 </div>
 

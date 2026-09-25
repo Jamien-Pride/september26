@@ -1,0 +1,63 @@
+{
+ "method": "OpenFOAM v1912 simpleFoam, realizableKE, Exposure D inlet (z0 0.005 m, 10 m/s at 10 m); forces from tools/cfd/forces.py averaged over the last 10 writes (iterations 2100-3000)",
+ "reference": "Cf on Af = 175 sq ft and dynamic pressure at 7 ft (U = 7.97 m/s)",
+ "hemisphere_check": {
+  "cfd_Cd": 1.306,
+  "handbook_Cd": 1.42,
+  "correction": 1.0869
+ },
+ "mesh_check": {
+  "L4_d0_Cf": 1.305,
+  "L5_d0_Cf": 1.36
+ },
+ "directions": [
+  {
+   "delta_deg": 0,
+   "Cf_raw": 1.36,
+   "Cf_corrected": 1.478,
+   "force_height_ft": 8.02,
+   "uplift_ratio": 0.466,
+   "lateral_over_drag": -0.0
+  },
+  {
+   "delta_deg": 19,
+   "Cf_raw": 1.364,
+   "Cf_corrected": 1.483,
+   "force_height_ft": 8.02,
+   "uplift_ratio": 0.487,
+   "lateral_over_drag": 0.38
+  },
+  {
+   "delta_deg": 41,
+   "Cf_raw": 1.375,
+   "Cf_corrected": 1.495,
+   "force_height_ft": 8.1,
+   "uplift_ratio": 0.521,
+   "lateral_over_drag": 0.774
+  },
+  {
+   "delta_deg": 90,
+   "Cf_raw": 0.435,
+   "Cf_corrected": 0.473,
+   "force_height_ft": 4.35,
+   "uplift_ratio": 0.053,
+   "lateral_over_drag": -0.796
+  },
+  {
+   "delta_deg": 135,
+   "Cf_raw": 0.738,
+   "Cf_corrected": 0.802,
+   "force_height_ft": 4.79,
+   "uplift_ratio": -0.173,
+   "lateral_over_drag": 0.332
+  },
+  {
+   "delta_deg": 180,
+   "Cf_raw": 0.929,
+   "Cf_corrected": 1.01,
+   "force_height_ft": 7.18,
+   "uplift_ratio": -0.528,
+   "lateral_over_drag": 0.0
+  }
+ ]
+}
