@@ -148,7 +148,7 @@
     <div class="two">
       <div class="sheet"><span class="cap">Plan slice at 4 ft (1.2 m) · wind enters from the left · 1 m grid</span><canvas id="windplan" width="1000" height="512"></canvas></div>
       <div class="sheet"><span class="cap">Section along the wind through the pad · ground at the bottom</span><canvas id="windsec" width="1000" height="288"></canvas></div>
-      <div class="legend" style="padding-inline:4px"><span><i style="background:rgb(30,80,130)"></i>under 11 mph (comfortable walking)</span><span><i style="background:rgb(80,180,190)"></i>11–26 mph</span><span><i style="background:rgb(230,150,60)"></i>26–36 mph</span><span><i style="background:#ff5a46"></i>over 36 mph (SF hazard, 1-min)</span></div>
+      <div class="legend" style="padding-inline:4px"><span><i style="background:rgb(30,80,130)"></i>under 11 mph (comfortable walking)</span><span><i style="background:rgb(80,180,190)"></i>11–26 mph</span><span><i style="background:rgb(230,150,60)"></i>26–36 mph (past the SF 26 mph hazard level)</span><span><i style="background:#ff5a46"></i>over 36 mph</span></div>
     </div>
     <aside>
       <div class="card">
@@ -176,13 +176,22 @@
         </div>
         <span class="tag" id="w-flag">—</span>
         <div class="row"><label>Wind force on the funnel (Cf 1.4)</label><span class="num" id="w-force">—</span></div>
-        <div class="row"><label>Design force, 95 mph gust (ASCE 7-22 estimate)</label><span class="num">3,600–4,800 lbf</span></div>
+        <div class="row"><label>Design force, 92 mph gust (ASCE 7-22, Exposure D)</label><span class="num">3,400–4,500 lbf</span></div>
         <p class="note" id="w-warm">Solver warming up…</p>
       </div>
       <div class="card">
+        <h2>Measured site wind</h2>
+        <div class="row"><label>Record</label><span class="num">Treasure Island Naval Station, 1983–96</span></div>
+        <div class="row"><label>Daytime wind from W / WSW</label><span class="num">32% / 23% of hours</span></div>
+        <div class="row"><label>Summer afternoon, head height</label><span class="num">13–14 mph median</span></div>
+        <div class="row"><label>Daytime hours over 11 mph, open</label><span class="num">24–36% <span class="tag warn">limit 10%</span></span></div>
+        <div class="row"><label>Same, in the throat (1.2–1.5×)</label><span class="num">34–64% <span class="tag hot">fails</span></span></div>
+        <p class="note">NOAA's Yerba Buena Island gauge has no wind sensor, and its harbour stations read 25–45% below the island. The island record is bridged to 2021–25 through Oakland airport.</p>
+      </div>
+      <div class="card">
         <h2>Why it matters</h2>
-        <p>The 175 sq ft mouth is a scoop turned 18–41° off the prevailing westerly. Air squeezes toward the 7 ft throat, and <b>SF's walking-comfort limit is 11 mph</b>, exceeded no more than 10% of daytime hours. On a normal summer afternoon the Central Bay blows 15–25 kt.</p>
-        <p>These are real 2D flow solutions (lattice Boltzmann) on two slices cut from the exact funnel. Each slice lets air escape only one way (around the sides, or over the top), and the solver's low Reynolds number smooths the flow, so treat them as a guide. Settled, they give <b>1.3–1.4×</b> in the throat and up to <b>~2×</b> around the rim edges. Purpose-built wind concentrators reach 1.5–2.1×, so I use <b>1.2–1.5×</b> for the throat.</p>
+        <p>The 175 sq ft mouth is a scoop turned 18–41° off the island's prevailing west and west-southwest winds. SF's walking-comfort yardstick is <b>11 mph</b>, exceeded in no more than 10% of daytime hours. The open lawn already exceeds it in <b>24–36%</b> of them; in the throat that rises to <b>34–64%</b>.</p>
+        <p>These are real 2D flow solutions (lattice Boltzmann) on two slices cut from the exact funnel. Each slice lets air escape only one way (around the sides, or over the top), and the solver's low Reynolds number smooths the flow, so treat them as a guide. Settled, they give <b>1.3–1.4×</b> in the throat and up to <b>~2×</b> around the rim edges. Published wind-concentrator studies report 1–2.6×, mostly from simulations, so I use <b>1.2–1.5×</b> for the throat.</p>
       </div>
     </aside>
   </section>
@@ -218,16 +227,16 @@
     <aside>
       <div class="card">
         <h2>Ground</h2>
-        <div class="row"><label>Fill</label><span class="num">~50 ft loose saturated sand</span></div>
+        <div class="row"><label>Loose sand (fill + shoal)</label><span class="num">~30–50 ft</span></div>
         <div class="row"><label>1989 Loma Prieta</label><span class="num">liquefied at 0.16 g</span></div>
-        <div class="row"><label>Pad elevation (elevation data)</label><span class="num">~11.9 ft NAVD88</span></div>
-        <div class="row"><label>100-yr tide + 36 in rise</label><span class="num">12.1 ft</span></div>
+        <div class="row"><label>Pad elevation (2023 lidar)</label><span class="num">~12.9 ft NAVD88 (11.3 before)</span></div>
+        <div class="row"><label>100-yr still water + 36 in rise</label><span class="num">12.2 ft</span></div>
       </div>
       <div class="card">
         <h2>Why it matters</h2>
         <p>Treasure Island is hydraulic fill from 1936–37. In 1989 it produced sand boils, settlement and a lateral spread. A 14 ft piece with a 7 ft wind lever on a surface slab can tilt in a quake and keep settling after.</p>
-        <p>The city is densifying the island and raising grades for <b>36 in</b> of sea level rise, with more planned at 30 in. Cityside Park is 300 ft wide partly to leave room for that work. A permanent foundation there needs coordinating with TIDA.</p>
-        <p class="note">Elevations mix sources whose datums I couldn't confirm; treat the comparison as indicative.</p>
+        <p>New building floors go at <b>12.7 ft</b> NAVD88 or higher, for 36 in of sea level rise plus freeboard. Cityside Park was raised and now sits about 0.7 ft above the 100-year still water plus 36 in; adapting it further is triggered once the Bay rises 30 in. The park is 300 ft wide partly to leave room for that work. A permanent foundation there needs coordinating with TIDA.</p>
+        <p class="note">All elevations are NAVD88 (TI Infrastructure Plan 2011, USGS lidar). Soil depths are island-wide ranges; no boring log for the park was found.</p>
       </div>
     </aside>
   </section>
@@ -241,7 +250,7 @@
       <div class="card">
         <h2>Salt air</h2>
         <div class="row"><label>Distance to the Bay</label><span class="num">~300 ft (0.1 km)</span></div>
-        <div class="row"><label>ISO 9223 C5 zone</label><span class="num">usually within 0.5–1 km</span></div>
+        <div class="row"><label>Coastal zone (ASSDA)</label><span class="num">within 1 km of still water</span></div>
         <div class="row"><label>Inside rinsed by rain</label><span class="num">0% <span class="tag hot">never</span></span></div>
         <div class="row"><label>Outside facing up</label><span class="num">66%</span></div>
       </div>
@@ -254,7 +263,7 @@
   </section>
 
   <footer>
-    Sun positions: NOAA algorithm for the exact site. Glare: ray-traced with the 0.53° solar disk, 62% mirror reflectance and up to 4 bounces, full year at 4-day × 10-minute steps. Wind: D2Q9 lattice Boltzmann on 10 cm cells, qualitative (low Reynolds number). Codes and sources are listed in the written review. Companion to the <a href="https://claude.ai/artifact/FRHFwggP7Vum2r9MtTPksn" target="_blank" rel="noopener">site visualization</a>.
+    Sun positions: NOAA algorithm for the exact site. Glare: ray-traced with the 0.53° solar disk, 62% mirror reflectance and up to 4 bounces, full year at 4-day × 10-minute steps. Wind: D2Q9 lattice Boltzmann on 10 cm cells, qualitative (low Reynolds number); site wind climate from the Treasure Island record (NCEI ISD 724943) bridged to 2021–25 through Oakland airport. Design wind: ASCE Hazard Tool, 92 mph, Exposure D. Codes and sources are listed in the written review. Companion to the <a href="https://claude.ai/artifact/FRHFwggP7Vum2r9MtTPksn" target="_blank" rel="noopener">site visualization</a>.
   </footer>
 </div>
 

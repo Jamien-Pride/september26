@@ -306,7 +306,7 @@ const lab = new WindLab($('windplan'), $('windsec'), (st) => {
   $('w-3d').textContent = side ? 'about 1× (side-on)' : '1.2–1.5×';
   $('w-mph').textContent = `${Math.round(free * r0)}–${Math.round(free * r1)} mph`;
   const top = free * r1, flag = $('w-flag');
-  if (top > 36) { flag.className = 'tag hot'; flag.textContent = 'Past the SF hazard level'; }
+  if (top > 26) { flag.className = 'tag hot'; flag.textContent = 'Past the SF hazard level (26 mph)'; }
   else if (top > 11) { flag.className = 'tag warn'; flag.textContent = 'Above walking comfort (11 mph)'; }
   else { flag.className = 'tag ok'; flag.textContent = 'Comfortable'; }
   const a = Math.abs(lab.delta) * D2R, area = 175 * Math.abs(Math.cos(a)) + 82 * Math.abs(Math.sin(a));
@@ -423,10 +423,11 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   const svg = $('svg-soil'); hatch(svg, 'fillHatch', 'rgba(255,177,59,0.35)');
   const x0 = 60, w = 320;
   const layers = [
-    ['Loose saturated sand fill (1936–37)', '0–50 ft · liquefied in 1989', 40, 230, 'url(#fillHatch)', C_SUN],
-    ['Young Bay Mud', '50–100 ft · soft, still settling', 230, 330, 'rgba(111,211,255,0.12)', C_MUTED],
-    ['Old Bay Mud', '100–300 ft', 330, 470, 'rgba(111,211,255,0.06)', C_MUTED],
-    ['Bedrock', 'below ~300 ft', 470, 530, 'rgba(220,236,255,0.08)', C_MUTED],
+    ['Hydraulic sand fill (1936–37)', 'about 15–45 ft · liquefied in 1989', 40, 160, 'url(#fillHatch)', C_SUN],
+    ['Natural shoal sand', 'fill + shoal sand ≈ 30–50 ft · loose', 160, 230, 'rgba(255,177,59,0.12)', C_SUN],
+    ['Young Bay Mud', '10–120 ft thick · soft, still settling', 230, 330, 'rgba(111,211,255,0.12)', C_MUTED],
+    ['Older Bay deposits', 'down to bedrock', 330, 470, 'rgba(111,211,255,0.06)', C_MUTED],
+    ['Bedrock', 'about 100–400 ft down', 470, 530, 'rgba(220,236,255,0.08)', C_MUTED],
   ];
   for (const [name, sub, y1, y2, fill, col] of layers) {
     el('rect', { x: x0, y: y1, width: w, height: y2 - y1, fill, stroke: 'rgba(190,220,255,0.3)' }, svg);
@@ -438,18 +439,19 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   el('text', { x: x0 + 225, y: 38, fill: C_MUTED, 'font-size': 12 }, svg, '6 in pad');
   // sand boils
   for (const bx of [x0 + 40, x0 + 250, x0 + 290]) el('path', { d: `M${bx - 10} 40 Q${bx} 22 ${bx + 10} 40`, fill: 'none', stroke: C_SUN }, svg);
-  el('text', { x: x0, y: 548, fill: C_MUTED, 'font-size': 11 }, svg, 'Depths after USGS / UCSD summaries of Treasure Island borings; not to scale below the fill.');
+  el('text', { x: x0, y: 548, fill: C_MUTED, 'font-size': 11 }, svg, 'Island-wide ranges from USGS PP 1551-B and the 2010 EIR; not to scale below the fill.');
   // elevation ladder (ft NAVD88)
-  const lx = 560, ly0 = 500, sc = 85; // px per ft, zoomed on 8–13 ft
+  const lx = 560, ly0 = 500, sc = 70; // px per ft, zoomed on 8–14 ft
   const Y = (ft) => ly0 - (ft - 8) * sc;
-  el('line', { x1: lx, y1: Y(8), x2: lx, y2: Y(13), stroke: C_INK }, svg);
-  for (let f = 8; f <= 13; f += 1) { el('line', { x1: lx - 6, y1: Y(f), x2: lx, y2: Y(f), stroke: C_INK }, svg); el('text', { x: lx - 10, y: Y(f) + 4, fill: C_MUTED, 'font-size': 11, 'text-anchor': 'end' }, svg, `${f} ft`); }
+  el('line', { x1: lx, y1: Y(8), x2: lx, y2: Y(14), stroke: C_INK }, svg);
+  for (let f = 8; f <= 14; f += 1) { el('line', { x1: lx - 6, y1: Y(f), x2: lx, y2: Y(f), stroke: C_INK }, svg); el('text', { x: lx - 10, y: Y(f) + 4, fill: C_MUTED, 'font-size': 11, 'text-anchor': 'end' }, svg, `${f} ft`); }
   const mark = (ft, text, col, dash, dy = -6) => { el('line', { x1: lx, y1: Y(ft), x2: 960, y2: Y(ft), stroke: col, 'stroke-dasharray': dash || '' }, svg); el('text', { x: lx + 12, y: Y(ft) + dy, fill: col, 'font-size': 13 }, svg, text); };
-  mark(9.1, '9.1 ft · 100-year high tide today', C_MUTED, '6 5');
-  mark(12.1, '12.1 ft · same tide + 36 in sea level rise', C_HOT, '6 5');
-  mark(12.6, '12.6 ft · + 6 in freeboard (redevelopment standard)', C_SUN, '2 4');
-  mark(11.9, '11.9 ft · pad grade in the elevation data', C_INK, '', 17);
-  el('text', { x: lx, y: 36, fill: C_INK, 'font-size': 14 }, svg, 'Elevations, ft above NAVD88 (zoomed on 8–13 ft)');
+  mark(9.2, '9.2 ft · 100-year still water today', C_MUTED, '6 5');
+  mark(11.3, '11.3 ft · pad grade before raising (2010 lidar)', C_MUTED, '2 4');
+  mark(12.2, '12.2 ft · same water level + 36 in sea level rise', C_HOT, '6 5', 17);
+  mark(12.7, '12.7 ft · + 6 in freeboard (building floors)', C_SUN, '2 4', 17);
+  mark(12.9, '12.9 ft · pad grade now (March 2023 lidar)', C_INK, '');
+  el('text', { x: lx, y: 36, fill: C_INK, 'font-size': 14 }, svg, 'Elevations, ft above NAVD88 (zoomed on 8–14 ft)');
 })();
 
 // Salt: rain exposure on a front section
@@ -489,7 +491,7 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   el('line', { x1: bx, y1: by, x2: bx + 300 * ft, y2: by, stroke: C_HOT, 'stroke-width': 4 }, svg);
   el('line', { x1: bx, y1: by + 10, x2: bx + 3280 * ft, y2: by + 10, stroke: 'rgba(255,177,59,0.5)', 'stroke-width': 4 }, svg);
   el('text', { x: bx + 300 * ft + 8, y: by + 4, fill: C_HOT, 'font-size': 12 }, svg, '300 ft to the Bay');
-  el('text', { x: bx + 3280 * ft + 8, y: by + 14, fill: C_SUN, 'font-size': 12 }, svg, 'C5 zone: typically within 0.5–1 km (1,640–3,280 ft)');
+  el('text', { x: bx + 3280 * ft + 8, y: by + 14, fill: C_SUN, 'font-size': 12 }, svg, 'Coastal zone (ASSDA): within 1 km (3,280 ft) of still marine water');
 })();
 
 // ================================================================ loop
