@@ -47,6 +47,7 @@
   @media (max-width: 980px) { .panel { grid-template-columns: 1fr; } }
   .sheet { border: 1px solid var(--line); background: rgba(10, 36, 64, 0.72); position: relative; overflow: hidden; }
   .sheet > .cap { position: absolute; left: 10px; top: 8px; font: 11px/1.3 var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none; }
+  .sheet > .cap.above { position: static; display: block; padding: 7px 10px; background: var(--paper-2); border-bottom: 1px solid var(--line); color: var(--ink); font-size: 12px; pointer-events: auto; }
   .view3d { height: min(64vh, 620px); min-height: 360px; }
   canvas { display: block; width: 100%; }
   aside { display: grid; gap: 12px; }
@@ -146,8 +147,8 @@
   <!-- WIND -->
   <section class="panel" id="p-wind" role="tabpanel" aria-labelledby="tab-wind" hidden>
     <div class="two">
-      <div class="sheet"><span class="cap">Plan slice at 4 ft (1.2 m) · wind enters from the left · 1 m grid</span><canvas id="windplan" width="1000" height="512"></canvas></div>
-      <div class="sheet"><span class="cap">Section along the wind through the pad · ground at the bottom</span><canvas id="windsec" width="1000" height="288"></canvas></div>
+      <div class="sheet"><span class="cap above">Plan slice at 4 ft (1.2 m) · wind enters from the left · 1 m grid</span><canvas id="windplan" width="1000" height="512"></canvas></div>
+      <div class="sheet"><span class="cap above">Section along the wind through the pad · ground at the bottom</span><canvas id="windsec" width="1000" height="288"></canvas></div>
       <div class="legend" style="padding-inline:4px"><span><i style="background:rgb(30,80,130)"></i>under 11 mph (comfortable walking)</span><span><i style="background:rgb(80,180,190)"></i>11–26 mph</span><span><i style="background:rgb(230,150,60)"></i>26–36 mph (past the SF 26 mph hazard level)</span><span><i style="background:#ff5a46"></i>over 36 mph</span></div>
     </div>
     <aside>
