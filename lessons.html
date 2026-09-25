@@ -1,0 +1,261 @@
+<meta charset="utf-8">
+<title>Funnel Lessons</title>
+<meta name="description" content="Blueprint-style simulations of what the Cityside Park funnel proposal didn't account for: glare, wind, access, ground and salt.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Barlow:wght@400;500&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --paper: #0a2440;
+    --paper-2: #0d2d50;
+    --ink: #dcecff;
+    --muted: #8fb0cf;
+    --faint: #5b7d9e;
+    --line: rgba(190, 220, 255, 0.18);
+    --sun: #ffb13b;
+    --hot: #ff5d4d;
+    --ok: #7fe3b0;
+    --cyan: #6fd3ff;
+    --display: 'Barlow Condensed', 'Arial Narrow', Arial, sans-serif;
+    --body: 'Barlow', 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0; color: var(--ink); font: 14px/1.5 var(--body);
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px),
+      linear-gradient(rgba(190,220,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(190,220,255,0.06) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  }
+  button, select, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--sun); outline-offset: 2px; }
+  .wrap { max-width: 1320px; margin: 0 auto; padding-inline: 16px; padding-block: 18px 40px; display: grid; gap: 16px; }
+  header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .eyebrow { font: 500 11.5px/1 var(--mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  h1 { margin: 6px 0 0; font: 700 34px/1 var(--display); letter-spacing: 0.03em; text-transform: uppercase; text-wrap: balance; }
+  h1 span { color: var(--sun); }
+  .titleblock { font: 12px/1.5 var(--mono); color: var(--muted); border: 1px solid var(--line); padding: 8px 12px; display: grid; grid-template-columns: auto auto; gap: 2px 14px; }
+  .titleblock b { color: var(--ink); font-weight: 500; }
+  nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  nav button { background: transparent; border: 1px solid var(--line); padding: 8px 14px; font: 600 14px/1 var(--display); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); cursor: pointer; }
+  nav button[aria-selected="true"] { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+  nav button .sev { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 8px; vertical-align: middle; }
+  .panel { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 16px; align-items: start; }
+  .panel[hidden] { display: none !important; }
+  @media (max-width: 980px) { .panel { grid-template-columns: 1fr; } }
+  .sheet { border: 1px solid var(--line); background: rgba(10, 36, 64, 0.72); position: relative; overflow: hidden; }
+  .sheet > .cap { position: absolute; left: 10px; top: 8px; font: 11px/1.3 var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; pointer-events: none; }
+  .view3d { height: min(64vh, 620px); min-height: 360px; }
+  canvas { display: block; width: 100%; }
+  aside { display: grid; gap: 12px; }
+  .card { border: 1px solid var(--line); background: rgba(10, 36, 64, 0.8); padding: 12px 14px; display: grid; gap: 8px; }
+  .card h2 { margin: 0; font: 700 17px/1.1 var(--display); letter-spacing: 0.1em; text-transform: uppercase; }
+  .card p { margin: 0; color: var(--muted); font-size: 13.5px; max-width: 62ch; }
+  .card p b { color: var(--ink); font-weight: 500; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; font-size: 13px; }
+  .row label { color: var(--muted); }
+  .num { font: 500 13px/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+  .big { font: 600 30px/1 var(--display); letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+  .readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+  .readouts div { display: grid; gap: 2px; }
+  .readouts small { font: 11px/1.3 var(--mono); color: var(--muted); letter-spacing: 0.04em; }
+  .tag { justify-self: start; font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid currentColor; padding: 4px 7px; }
+  .tag.hot { color: var(--hot); } .tag.warn { color: var(--sun); } .tag.ok { color: var(--ok); }
+  input[type="range"] { width: 100%; accent-color: var(--sun); }
+  select { background: var(--paper-2); border: 1px solid var(--line); padding: 5px 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips button { background: transparent; border: 1px dashed var(--line); padding: 5px 9px; font: 12px/1.2 var(--mono); color: var(--ink); cursor: pointer; text-align: left; }
+  .chips button:hover { border-color: var(--sun); border-style: solid; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font: 11.5px/1.3 var(--mono); color: var(--muted); }
+  .legend i { display: inline-block; width: 18px; height: 8px; margin-right: 6px; vertical-align: middle; }
+  .two { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  .label3d { position: absolute; font: 11px/1.2 var(--mono); color: var(--muted); white-space: nowrap; transform: translate(-50%, -50%); pointer-events: none; letter-spacing: 0.04em; }
+  .label3d.strong { color: var(--ink); }
+  .label3d.sun { color: var(--sun); }
+  svg text { font-family: var(--mono); }
+  .note { font: 11.5px/1.5 var(--mono); color: var(--faint); }
+  footer { color: var(--faint); font: 11.5px/1.6 var(--mono); border-top: 1px solid var(--line); padding-top: 10px; }
+  footer a, .card a { color: var(--cyan); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }
+</script>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Cityside Park · Treasure Island · proposal review</div>
+      <h1>What the funnel <span>didn't account for</span></h1>
+    </div>
+    <div class="titleblock" aria-label="Drawing information">
+      <span>Site</span><b>37.8196° N, 122.3732° W</b>
+      <span>Mouth faces</span><b>229° (SW)</b>
+      <span>Size</span><b>18 ft mouth · 14 ft tall · 8 ft deep</b>
+    </div>
+  </header>
+
+  <nav role="tablist" aria-label="Issues">
+    <button role="tab" id="tab-sun" aria-selected="true" aria-controls="p-sun">Sun &amp; glare<span class="sev" style="background:var(--hot)"></span></button>
+    <button role="tab" id="tab-wind" aria-selected="false" aria-controls="p-wind">Wind<span class="sev" style="background:var(--hot)"></span></button>
+    <button role="tab" id="tab-people" aria-selected="false" aria-controls="p-people">People<span class="sev" style="background:var(--sun)"></span></button>
+    <button role="tab" id="tab-ground" aria-selected="false" aria-controls="p-ground">Ground<span class="sev" style="background:var(--sun)"></span></button>
+    <button role="tab" id="tab-salt" aria-selected="false" aria-controls="p-salt">Salt air<span class="sev" style="background:var(--sun)"></span></button>
+  </nav>
+
+  <!-- SUN -->
+  <section class="panel" id="p-sun" role="tabpanel" aria-labelledby="tab-sun">
+    <div class="two">
+      <div class="sheet view3d" id="sun3d"><span class="cap">3D · sun rays traced through the funnel · drag to orbit</span></div>
+      <div class="sheet">
+        <span class="cap">Glare calendar · brightest reflected spot at head height · amber 1× sun, red 2× · cyan dot = 2× or more on the pad · click to jump</span>
+        <canvas id="calendar" height="230" aria-label="Glare calendar"></canvas>
+      </div>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Date and time</h2>
+        <div class="row"><label for="day">Day</label><span class="num" id="dayv">Dec 19</span></div>
+        <input id="day" type="range" min="0" max="364" value="352">
+        <div class="row"><label for="tod">Time</label><span class="num" id="todv">4:40 PM</span></div>
+        <input id="tod" type="range" min="300" max="1260" step="5" value="1000">
+        <div class="chips" id="sunpresets"></div>
+      </div>
+      <div class="card">
+        <h2>At this moment</h2>
+        <div class="readouts">
+          <div><small>Sun</small><span class="num" id="r-sun">—</span></div>
+          <div><small>Light redirected by mirrors</small><span class="num" id="r-share">—</span></div>
+          <div><small>Peak at head height</small><span class="big" id="r-head">—</span></div>
+          <div><small>Peak on the pad / ground</small><span class="big" id="r-ground">—</span></div>
+        </div>
+        <span class="tag" id="r-flag">—</span>
+        <div class="legend"><span><i style="background:var(--sun)"></i>sunlight in</span><span><i style="background:#fff"></i>reflected off mirror panels</span><span><i style="background:linear-gradient(90deg,#1d6fa5,#ffb13b,#ff5d4d)"></i>0 → 2× sun</span></div>
+      </div>
+      <div class="card">
+        <h2>Why it matters</h2>
+        <p>The mouth faces <b>229°</b>; the winter sun sets at <b>241°</b>. A cone of mirrors pointed at the low sun bounces light across itself and focuses it toward the axis.</p>
+        <p>Over a year: <b>about 550 hours</b> with a spot at head height at 1× sun or more, peaking at <b>2.2×</b> in late December. There's also a <b>3.8×</b> line on the pad in early November and early February, when the sun lines up with the axis.</p>
+        <p>It all lands within about 11 ft of the pad: inside the funnel and just past the throat, where people were invited to walk through.</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- WIND -->
+  <section class="panel" id="p-wind" role="tabpanel" aria-labelledby="tab-wind" hidden>
+    <div class="two">
+      <div class="sheet"><span class="cap">Plan slice at 4 ft (1.2 m) · wind enters from the left · 1 m grid</span><canvas id="windplan" width="1000" height="512"></canvas></div>
+      <div class="sheet"><span class="cap">Section along the wind through the pad · ground at the bottom</span><canvas id="windsec" width="1000" height="288"></canvas></div>
+      <div class="legend" style="padding-inline:4px"><span><i style="background:rgb(30,80,130)"></i>under 11 mph (comfortable walking)</span><span><i style="background:rgb(80,180,190)"></i>11–26 mph</span><span><i style="background:rgb(230,150,60)"></i>26–36 mph</span><span><i style="background:#ff5a46"></i>over 36 mph (SF hazard, 1-min)</span></div>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Wind</h2>
+        <div class="row"><label for="wdir">Coming from</label>
+          <select id="wdir">
+            <option value="270">W 270° · prevailing sea breeze</option>
+            <option value="248" selected>WSW 248° · sea breeze, veered</option>
+            <option value="300">WNW 300°</option>
+            <option value="225">SW 225° · straight into the mouth</option>
+            <option value="180">S 180° · winter storm</option>
+            <option value="49">NE 49° · into the throat</option>
+          </select></div>
+        <div class="row"><label for="wspd">Free wind at head height</label><span class="num" id="wspdv">20 mph</span></div>
+        <input id="wspd" type="range" min="4" max="60" value="20">
+        <div class="chips" id="windpresets"></div>
+      </div>
+      <div class="card">
+        <h2>In the throat</h2>
+        <div class="readouts">
+          <div><small>Speed-up, plan slice</small><span class="num" id="w-plan">—</span></div>
+          <div><small>Speed-up, section</small><span class="num" id="w-sec">—</span></div>
+          <div><small>Likely 3D range</small><span class="num" id="w-3d">—</span></div>
+          <div><small>Throat wind</small><span class="big" id="w-mph">—</span></div>
+        </div>
+        <span class="tag" id="w-flag">—</span>
+        <div class="row"><label>Wind force on the funnel (Cf 1.4)</label><span class="num" id="w-force">—</span></div>
+        <div class="row"><label>Design force, 95 mph gust (ASCE 7-22 estimate)</label><span class="num">3,600–4,800 lbf</span></div>
+        <p class="note" id="w-warm">Solver warming up…</p>
+      </div>
+      <div class="card">
+        <h2>Why it matters</h2>
+        <p>The 175 sq ft mouth is a scoop turned 18–41° off the prevailing westerly. Air squeezes toward the 7 ft throat, and <b>SF's walking-comfort limit is 11 mph</b>, exceeded no more than 10% of daytime hours. On a normal summer afternoon the Central Bay blows 15–25 kt.</p>
+        <p>These are real 2D flow solutions (lattice Boltzmann) on two slices cut from the exact funnel. Each slice lets air escape only one way (around the sides, or over the top), and the solver's low Reynolds number smooths the flow, so treat them as a guide. Settled, they give <b>1.3–1.4×</b> in the throat and up to <b>~2×</b> around the rim edges. Purpose-built wind concentrators reach 1.5–2.1×, so I use <b>1.2–1.5×</b> for the throat.</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- PEOPLE -->
+  <section class="panel" id="p-people" role="tabpanel" aria-labelledby="tab-people" hidden>
+    <div class="two">
+      <div class="sheet"><span class="cap">Section through the throat, looking along the axis · 1 in = 1 in</span><svg id="svg-throat" viewBox="0 0 1000 560" role="img" aria-label="Throat section with headroom and overhang"></svg></div>
+      <div class="sheet"><span class="cap">Side elevation · slopes people can climb</span><svg id="svg-side" viewBox="0 0 1000 440" role="img" aria-label="Side elevation with climbing slopes"></svg></div>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Checks</h2>
+        <div class="row"><label>Headroom in throat</label><span class="num">78 in · needs 80 <span class="tag hot">fails</span></span></div>
+        <div class="row"><label>Overhang 27–80 in</label><span class="num">&gt;4 in above 74 in <span class="tag hot">fails</span></span></div>
+        <div class="row"><label>Clear width at floor</label><span class="num">43 in · needs 36 <span class="tag ok">passes</span></span></div>
+        <div class="row"><label>Top ridge slope</label><span class="num">43° to a 14 ft drop</span></div>
+        <div class="row"><label>Inner slope at throat / mouth</label><span class="num">31° / 56°</span></div>
+      </div>
+      <div class="card">
+        <h2>Why it matters</h2>
+        <p>ADA 307.4 requires <b>80 in</b> of headroom on a route, or a cane-detectable barrier. 307.2 allows objects between 27 and 80 in to overhang the walking line by <b>4 in</b> at most. The throat's top is 78 in, and its rim curves in over the floor line: 4 in at 74 in, 9 in at 76 in and 22 in at 78 in.</p>
+        <p>The shape also invites climbing (a 31° start inside the throat, a 43° ridge up to 14 ft) and skating (a steel bowl on a smooth pad).</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- GROUND -->
+  <section class="panel" id="p-ground" role="tabpanel" aria-labelledby="tab-ground" hidden>
+    <div class="two">
+      <div class="sheet"><span class="cap">What's under the pad · not to scale below 10 m</span><svg id="svg-soil" viewBox="0 -20 1000 580" role="img" aria-label="Soil profile under the pad"></svg></div>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Ground</h2>
+        <div class="row"><label>Fill</label><span class="num">~50 ft loose saturated sand</span></div>
+        <div class="row"><label>1989 Loma Prieta</label><span class="num">liquefied at 0.16 g</span></div>
+        <div class="row"><label>Pad elevation (elevation data)</label><span class="num">~11.9 ft NAVD88</span></div>
+        <div class="row"><label>100-yr tide + 36 in rise</label><span class="num">12.1 ft</span></div>
+      </div>
+      <div class="card">
+        <h2>Why it matters</h2>
+        <p>Treasure Island is hydraulic fill from 1936–37. In 1989 it produced sand boils, settlement and a lateral spread. A 14 ft piece with a 7 ft wind lever on a surface slab can tilt in a quake and keep settling after.</p>
+        <p>The city is densifying the island and raising grades for <b>36 in</b> of sea level rise, with more planned at 30 in. Cityside Park is 300 ft wide partly to leave room for that work. A permanent foundation there needs coordinating with TIDA.</p>
+        <p class="note">Elevations mix sources whose datums I couldn't confirm; treat the comparison as indicative.</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- SALT -->
+  <section class="panel" id="p-salt" role="tabpanel" aria-labelledby="tab-salt" hidden>
+    <div class="two">
+      <div class="sheet"><span class="cap">Front section · where rain rinses salt off, and where it never does</span><svg id="svg-salt" viewBox="0 0 1000 540" role="img" aria-label="Rain exposure of the funnel's surfaces"></svg></div>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Salt air</h2>
+        <div class="row"><label>Distance to the Bay</label><span class="num">~300 ft (0.1 km)</span></div>
+        <div class="row"><label>ISO 9223 C5 zone</label><span class="num">usually within 0.5–1 km</span></div>
+        <div class="row"><label>Inside rinsed by rain</label><span class="num">0% <span class="tag hot">never</span></span></div>
+        <div class="row"><label>Outside facing up</label><span class="num">66%</span></div>
+      </div>
+      <div class="card">
+        <h2>Why it matters</h2>
+        <p>Stainless tea-stains where chlorides sit and nothing washes them away. Because the funnel's top panel covers its whole depth, <b>vertical rain never reaches any of the inside</b>, where the mirror finish matters most. Only storm rain blown into the mouth reaches it.</p>
+        <p>Needs 316L or duplex stainless, AAMA 2605 or porcelain enamel colours, isolated fasteners and a washing schedule.</p>
+      </div>
+    </aside>
+  </section>
+
+  <footer>
+    Sun positions: NOAA algorithm for the exact site. Glare: ray-traced with the 0.53° solar disk, 62% mirror reflectance and up to 4 bounces, full year at 4-day × 10-minute steps. Wind: D2Q9 lattice Boltzmann on 10 cm cells, qualitative (low Reynolds number). Codes and sources are listed in the written review. Companion to the <a href="https://claude.ai/artifact/FRHFwggP7Vum2r9MtTPksn" target="_blank" rel="noopener">site visualization</a>.
+  </footer>
+</div>
+
+<script type="module" src="./js/lessons/app.js"></script>

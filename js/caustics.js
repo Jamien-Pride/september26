@@ -33,6 +33,37 @@ function hit(o, d) {
   return -1;
 }
 
+// Follow one sun ray through the funnel (sculpture-local space) for drawing.
+// Returns the polyline, whether it touched a polished panel, and its energy.
+export function tracePath(o0, d0, reflectance = 0.62, maxBounce = 4, runout = 14) {
+  const o = [...o0], d = [...d0];
+  const pts = [[...o]];
+  let energy = 1, mirror = false, absorbed = false;
+  for (let b = 0; b < maxBounce; b++) {
+    const l = hit(o, d);
+    if (l < 0) break;
+    const px = o[0] + d[0] * l, py = o[1] + d[1] * l, pz = o[2] + d[2] * l;
+    pts.push([px, py, pz]);
+    const t = (CONE.zm - pz) / L;
+    const cyy = CONE.ym + dY * t, r = CONE.rm + dR * t;
+    const th = Math.atan2(py - cyy, px) * 180 / Math.PI;
+    const j = Math.floor((((th - STRIP0) % 360) + 360) % 360 / STRIP_DEG);
+    if (j % 2 === 0) { absorbed = true; return { pts, mirror, absorbed, energy: 0 }; }
+    let nx = px, ny = py - cyy, nz = ((py - cyy) * dY + r * dR) / L;
+    const nl = Math.hypot(nx, ny, nz); nx /= nl; ny /= nl; nz /= nl;
+    let dn = d[0] * nx + d[1] * ny + d[2] * nz;
+    if (dn > 0) { nx = -nx; ny = -ny; nz = -nz; dn = -dn; }
+    d[0] -= 2 * dn * nx; d[1] -= 2 * dn * ny; d[2] -= 2 * dn * nz;
+    o[0] = px + nx * 1e-3; o[1] = py + ny * 1e-3; o[2] = pz + nz * 1e-3;
+    energy *= reflectance; mirror = true;
+  }
+  // run out to the ground or a fixed length
+  let l = runout;
+  if (d[1] < -1e-4) l = Math.min(l, -o[1] / d[1]);
+  pts.push([o[0] + d[0] * l, o[1] + d[1] * l, o[2] + d[2] * l]);
+  return { pts, mirror, absorbed, energy };
+}
+
 export class ReflectedLight {
   constructor() {
     this.half = 22; // map covers ±22 m around the pad
@@ -129,6 +160,7 @@ export class ReflectedLight {
       grid[i] = grid[i] * t + coarse[i] * (1 - t);
     }
     boxBlur(head, res, 2);
+    this.headGrid = head;
     const norm = 1; // already in beam-normal suns
     let gp = 0, hp = 0, ha = 0;
     for (let i = 0; i < grid.length; i++) {
