@@ -404,8 +404,10 @@ export class Sculpture {
   buildPad() {
     const { w, d } = CONE.pad;
     // Light broom-finish concrete pad, 6" proud of the root flare, flush with the path.
-    const padGeo = new THREE.BoxGeometry(w, 0.2, d);
-    padGeo.translate(0, -0.095, 0);
+    // 6" slab, finished 1" proud of the surrounding paving with an eased edge
+    const PAD_TOP = 0.025;
+    const padGeo = new THREE.BoxGeometry(w, 0.18, d, 1, 1, 1);
+    padGeo.translate(0, PAD_TOP - 0.09, 0);
     const padMat = new THREE.MeshStandardMaterial({ color: 0xbdb6ab, roughness: 0.9 });
     padMat.onBeforeCompile = (sh) => {
       sh.uniforms.uCaustic = this.traceUniforms.uCaustic;
@@ -435,12 +437,12 @@ export class Sculpture {
     const ringMat = new THREE.MeshStandardMaterial({ color: 0x9a9a98, roughness: 0.3, metalness: 1 });
     for (const x of [-0.63, 0.63]) {
       const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.012, 32), ringMat);
-      ring.position.set(x, 0.006, 0.25);
+      ring.position.set(x, PAD_TOP + 0.004, 0.25);
       const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.014, 32), lensMat);
-      lens.position.set(x, 0.007, 0.25);
+      lens.position.set(x, PAD_TOP + 0.005, 0.25);
       this.group.add(ring, lens);
       const spot = new THREE.SpotLight(0xfff0dd, 0, 12, 0.62, 0.5, 2);
-      spot.position.set(x, 0.05, 0.25);
+      spot.position.set(x, PAD_TOP + 0.04, 0.25);
       spot.target.position.set(x * 1.5, 5, -0.6);
       this.group.add(spot, spot.target);
       this.upFixtures.push(spot);
@@ -456,9 +458,9 @@ export class Sculpture {
       const leg = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.43, 0.05), steel); leg.position.set(0, 0.215, z); bench.add(leg);
       const bk = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.45, 0.05), steel); bk.position.set(0.28, 0.66, z); bk.rotation.z = 0.15; bench.add(bk);
     }
-    // On the path just past the pad's end, backing onto the planted island,
-    // facing the lawn (matched to the proposal's aerial drawing).
-    bench.position.set(5.2, 0, 1.95);
+    // On the path just past the pad's end, backing onto the planting,
+    // facing the lawn (as in the proposal drawings).
+    bench.position.set(5.6, 0, -0.55);
     bench.rotation.y = Math.PI / 2;
     bench.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.layers.enable(2); o.layers.enable(3); } });
     this.group.add(bench);

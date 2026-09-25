@@ -8,6 +8,9 @@ export const SITE = {
   groundElevation: 3.64, // m above NAVD88 (from USGS/Terrarium DEM)
   // Mean sea level in San Francisco Bay sits ~0.9 m above NAVD88.
   meanSeaLevelNavd: 0.9,
+  // Direction the sculpture's mouth faces in the proposal: square to the path,
+  // opening onto the lawn.
+  padFacing: 229.4,
 };
 
 const LAT0 = SITE.lat * Math.PI / 180;

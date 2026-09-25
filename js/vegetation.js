@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { planPxToWorld, planToWorld, PLAN, worldToPlan } from './geo.js';
-import { LAYOUT } from './park.js';
+import { LAYOUT, PAD_CLEAR_RADIUS } from './park.js';
 
 let seed = 1;
 const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
@@ -327,6 +327,7 @@ export function buildVegetation(heightFn, splat, shared, terrainData, landClass)
     const m = splat.sampleMask(uu, vv);
     if (m[2] < 0.6 || m[0] > 0.2 || m[1] > 0.2) continue;
     const w = planToWorld(uu, vv);
+    if (Math.hypot(w.x, w.z) < PAD_CLEAR_RADIUS + 0.5) continue; // nothing grows on the pad
     const r = rnd();
     const dune = m[3] > 0.5;
     if (!dune && r < 0.32) shrubs.push([w.x, heightFn(w.x, w.z), w.z]);

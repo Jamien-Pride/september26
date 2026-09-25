@@ -37,7 +37,7 @@ let frameCount = 0;
 const state = {
   quality: params.get('q') || (coarse ? 'low' : 'medium'),
   date: null, minutes: 0, playing: false, speed: 20, // speed = simulated minutes per real second
-  facing: 229.4, paint: 'gloss', metal: 'mirror', uplights: 'auto',
+  facing: SITE.padFacing, paint: 'gloss', metal: 'mirror', uplights: 'auto',
   haze: 0.35, fog: 0, wind: 0.45, tide: 0, clouds: 0.18,
   heatmap: false, mode: 'orbit',
 };
@@ -251,7 +251,7 @@ const PRESETS = {
   bay: { pos: [-6, 1.65, -14], look: [0, 2.5, 0], label: 'Toward the bridge' },
   aerial: { pos: [60, 55, 80], look: [0, 0, 0], label: 'Aerial' },
   // World-fixed camera matched to the proposal's aerial "Art Location" drawing
-  drawing: { pos: [17.99, 12, 11.75], look: [0.56, 2.94, 8.0], world: true, label: 'Proposal drawing view' },
+  drawing: { pos: [17.99, 12, 11.75], look: [0.56, 2.94, 8.0], world: true, label: 'Proposal drawing angle' },
 };
 export function gotoPreset(name, instant = false) {
   const p = PRESETS[name];

@@ -52,6 +52,7 @@ export function buildLawnGrass(splat, heightTex, shared, { count = 320000, tile 
         vec2 suv = (pl - uRect.xy)/uRect.zw;
         vec4 s1 = texture2D(tS1, suv); vec4 s2 = texture2D(tS2, suv);
         float lawn = smoothstep(0.55, 0.8, s1.g) * (1.0 - smoothstep(0.2, 0.5, s1.r));
+        lawn *= step(${(3.4 + 0.4).toFixed(2)}, length(wp)); // keep blades off the sculpture pad
         float dist = length(wp - uCam);
         float fade = 1.0 - smoothstep(uTile*0.3, uTile*0.5, dist);
         float h = (0.055 + 0.045*aOff.w) * lawn * fade;

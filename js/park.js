@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { planToWorld, planPxToWorld, worldToPlan, PLAN, toLocal } from './geo.js';
+import { planToWorld, planPxToWorld, worldToPlan, PLAN, toLocal, bearingVec, SITE } from './geo.js';
 import { facadeMaterial, prism } from './facade.js';
 
 // Cityside Park, laid out from the landscape plan in the proposal (plan pixels,
@@ -19,9 +19,9 @@ export const LAYOUT = {
   vRiprapTop: py2v(992), vWater: py2v(1046),
   promenade: (px) => px < 650 ? 925 : px > 1050 ? 862 : 925 - (63 * (1 - Math.cos(Math.PI * (px - 650) / 400)) / 2),
   road: { top: 492, bottom: 533 }, median: [538, 556], lane: [558, 586], sidewalkTop: [462, 490], sidewalkPark: [590, 600],
-  lawn: [[255, 862], [262, 800], [300, 752], [360, 722], [440, 700], [520, 674], [575, 664], [630, 653], [690, 650], [735, 672], [758, 730], [758, 780], [735, 830], [690, 876], [630, 904], [560, 910], [420, 910], [300, 906], [262, 890]],
+  lawn: [[255, 862], [262, 800], [300, 752], [360, 722], [440, 694], [520, 670], [575, 662], [630, 656], [690, 652], [735, 672], [758, 730], [758, 780], [735, 830], [690, 876], [630, 904], [560, 910], [420, 910], [300, 906], [262, 890]],
   paths: [
-    { w: 3.2, pts: [[182, 778], [240, 746], [330, 708], [430, 676], [526, 663], [573, 652], [620, 641], [672, 614], [722, 596]] },
+    { w: 3.2, pts: [[182, 778], [240, 746], [330, 706], [430, 669], [520, 652], [570, 645], [620, 632], [680, 607], [722, 596]] },
     { w: 3.2, pts: [[690, 600], [800, 600], [930, 602], [985, 614], [1010, 652], [1020, 702], [1014, 760], [1000, 812], [992, 860]] },
     { w: 3.0, pts: [[976, 640], [950, 672], [912, 718], [868, 760], [800, 810], [740, 850], [684, 884], [640, 908]] },
     { w: 7.0, pts: [[96, 596], [150, 750], [214, 912]] },
@@ -64,6 +64,21 @@ export const LAYOUT = {
   poles: [[440, 676], [680, 614], [300, 718], [200, 768], [820, 606], [990, 640], [1016, 760], [930, 694], [780, 830],
     [160, 918], [360, 918], [560, 918], [760, 914], [960, 876], [1160, 862], [1360, 862], [-40, 918], [-240, 918]],
 };
+
+// Pad corners in plan metres (u, v), for the default facing, grown by margin m.
+export const PAD = { w: 20 * 0.3048, d: 10 * 0.3048 };
+export function padFootprint(m = 0) {
+  const f = bearingVec(SITE.padFacing);            // local +z (mouth) on the ground
+  const zx = f.x, zz = f.z, xx = f.z, xz = -f.x;    // local +x = right when facing the mouth
+  const hw = PAD.w / 2 + m, hd = PAD.d / 2 + m;
+  return [[-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd]].map(([a, b]) => {
+    const wx = a * xx + b * zx, wz = a * xz + b * zz;
+    const p = worldToPlan(wx, wz);
+    return [p.u, p.v];
+  });
+}
+// Keeps planting and lawn blades clear of the pad in any orientation.
+export const PAD_CLEAR_RADIUS = Math.hypot(PAD.w / 2, PAD.d / 2) + 0.4;
 
 // Is world point inside the modelled park ground (so the DEM mesh can yield)?
 export function parkExclusion(x, z) {
@@ -138,8 +153,13 @@ export function buildSplat() {
     strokePath(xPave, p.pts, p.w); strokePath(xConc, p.pts, p.w);
     for (const x of [xLawn, xPlant]) { x.strokeStyle = '#000'; strokePath(x, p.pts, p.w + 0.1); x.strokeStyle = '#fff'; }
   }
-  // sculpture pad: 20' x 10' flush concrete, long side along the path
-  // (drawn by the sculpture itself; keep ground under it paved)
+  // The proposal's 20' x 10' concrete pad sits where the path widens at the
+  // red-circled spot. Pave a margin around it so it reads as part of the path.
+  {
+    const pts = padFootprint(1.0).map(([u, v]) => [PLAN.originPx[0] + u / PLAN.scale, PLAN.originPx[1] + v / PLAN.scale]);
+    polyPath(xPave, pts); xPave.fill(); polyPath(xConc, pts); xConc.fill();
+    for (const x of [xLawn, xPlant, xDG]) { x.fillStyle = '#000'; polyPath(x, pts); x.fill(); x.fillStyle = '#fff'; }
+  }
   // markings: centre line (double yellow), edge lines, crosswalks, bike lane
   xMark.fillStyle = '#808080';
   const cyl = (L.road.top + L.road.bottom) / 2;
@@ -213,6 +233,9 @@ export function makeHeightFn(splat, waterY) {
   return (x, z) => {
     const { u, v } = worldToPlan(x, z);
     let y = splat.bermH(u, v);
+    // the pad and its surround are level with the path
+    const r = Math.hypot(x, z);
+    if (r < 8) y *= THREE.MathUtils.smoothstep(r, PAD_CLEAR_RADIUS + 0.6, 8);
     // gentle crown to the lawn so it drains
     if (v > L.vRiprapTop) {
       const t = (v - L.vRiprapTop) / (L.vWater - L.vRiprapTop);
