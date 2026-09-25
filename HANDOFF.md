@@ -1,4 +1,4 @@
-# Handoff: fact-check with full network access
+# Handoff: Deep Listening fact-check (full network access)
 
 Earlier session built the site visualization, the blueprint lessons page and a
 written review. Its web research could only see search-result excerpts. This

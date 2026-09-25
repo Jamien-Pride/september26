@@ -499,6 +499,53 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   el('text', { x: bx + 3280 * ft + 8, y: by + 14, fill: C_SUN, 'font-size': 12 }, svg, 'Coastal zone (ASSDA): within 1 km (3,280 ft) of still marine water');
 })();
 
+// Night light: side elevation (plane of symmetry), uplight beams reflected off the mirrored top panel
+(function night() {
+  const svg = $('svg-night');
+  const s = 28, X0 = 520, Y0 = 470;                       // px per ft; X0 = pad centre, mouth to the left
+  const P = (z, y) => [X0 - z * s, Y0 - y * s];           // z = ft toward the mouth, y = ft up
+  const MZ = 4, TZ = -4, MTOP = 14, TTOP = 6.5;
+  el('line', { x1: 40, y1: Y0, x2: 960, y2: Y0, stroke: C_INK, 'stroke-width': 2 }, svg);
+  el('rect', { x: P(10, 0)[0], y: Y0, width: 20 * s, height: 8, fill: 'rgba(220,236,255,0.25)' }, svg);
+  // sculpture silhouette: mouth rim, top ruling (mirror strip on the inside), throat rim
+  const [ma, mb] = [P(MZ, 0), P(MZ, MTOP)], [ta, tb] = [P(TZ, 0), P(TZ, TTOP)];
+  el('line', { x1: ma[0], y1: ma[1], x2: mb[0], y2: mb[1], stroke: C_INK, 'stroke-width': 3 }, svg);
+  el('line', { x1: ta[0], y1: ta[1], x2: tb[0], y2: tb[1], stroke: C_INK, 'stroke-width': 3 }, svg);
+  el('line', { x1: mb[0], y1: mb[1], x2: tb[0], y2: tb[1], stroke: '#ffffff', 'stroke-width': 4 }, svg);
+  el('text', { x: (mb[0] + tb[0]) / 2 + 12, y: (mb[1] + tb[1]) / 2 - 14, fill: C_INK, 'font-size': 13 }, svg, 'mirror strip (inside of top panel)');
+  // fixtures at z = 0.25 m, aimed up and back (as modelled in the site visualization)
+  const fz = 0.25 / 0.3048, [fx, fy] = P(fz, 0);
+  el('rect', { x: fx - 10, y: Y0 - 3, width: 20, height: 6, fill: C_SUN }, svg);
+  el('text', { x: fx, y: Y0 + 42, fill: C_SUN, 'font-size': 13, 'text-anchor': 'middle' }, svg, '2 in-grade uplights (side by side)');
+  // ray trace in the plane: hit the top ruling y = TTOP + (z - TZ)·k, reflect, run until out of the mouth
+  const k = (MTOP - TTOP) / (MZ - TZ);
+  const nIn = (() => { const l = Math.hypot(k, 1); return [k / l, -1 / l]; })();   // inward normal (z, y)
+  const aim = Math.atan2(-0.6 / 0.3048 - fz, 5 / 0.3048);                           // beam axis tilt toward the throat
+  for (let i = -6; i <= 6; i++) {
+    const a = aim + (i / 6) * 0.62, d = [Math.sin(a), Math.cos(a)];
+    // intersect z = fz + t d0, y = t d1 with the top ruling
+    const t = (TTOP + (fz - TZ) * k) / (d[1] - k * d[0]);
+    const hz = fz + t * d[0], hy = t * d[1];
+    if (t <= 0 || hz > MZ || hz < TZ) continue;
+    const [hx, hyy] = P(hz, hy);
+    el('line', { x1: fx, y1: fy, x2: hx, y2: hyy, stroke: 'rgba(255,177,59,0.55)', 'stroke-width': 1.5 }, svg);
+    const dn = d[0] * nIn[0] + d[1] * nIn[1], r = [d[0] - 2 * dn * nIn[0], d[1] - 2 * dn * nIn[1]];
+    if (r[0] <= 0) continue;                                     // only rays heading out of the mouth
+    const tm = (MZ - hz) / r[0], ey = hy + tm * r[1];
+    if (ey < 0) continue;
+    const L = r[1] < 0 ? Math.min(16, -ey / r[1]) : 16, [ex, eyy] = P(MZ + L * r[0], ey + L * r[1]);   // stop at the lawn
+    const [mx, my] = P(MZ, ey);
+    el('line', { x1: hx, y1: hyy, x2: mx, y2: my, stroke: 'rgba(255,255,255,0.75)', 'stroke-width': 1.2 }, svg);
+    el('line', { x1: mx, y1: my, x2: ex, y2: eyy, stroke: 'rgba(255,255,255,0.75)', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }, svg);
+  }
+  person(svg, P(15.5, 0)[0], Y0, 66, s / 12, 'lawn, eye level', C_MUTED);
+  el('text', { x: 50, y: 34, fill: C_INK, 'font-size': 13 }, svg, 'Reflected light leaves the mouth: down onto the lawn,');
+  el('text', { x: 50, y: 52, fill: C_INK, 'font-size': 13 }, svg, 'across it at eye level, and up into the sky.');
+  el('text', { x: P(0, 0)[0], y: Y0 + 72, fill: C_MUTED, 'font-size': 12, 'text-anchor': 'middle' }, svg, 'Schematic: rays in the plane of symmetry, mirror strips only; painted strips scatter the rest.');
+  el('text', { x: P(MZ, 0)[0], y: Y0 + 22, fill: C_MUTED, 'font-size': 12, 'text-anchor': 'middle' }, svg, 'mouth');
+  el('text', { x: P(TZ, 0)[0], y: Y0 + 22, fill: C_MUTED, 'font-size': 12, 'text-anchor': 'middle' }, svg, 'throat');
+})();
+
 // ================================================================ loop
 const clock = new THREE.Timer();
 function loop() {

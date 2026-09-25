@@ -244,7 +244,7 @@ const PRESETS = {
   hero: { pos: [-5.5, 1.65, 12.5], look: [0.3, 2.2, 0], label: 'From the lawn' },
   portal: { pos: [0.35, 1.65, -7.2], look: [0, 1.55, 12], label: 'Through the portal' },
   mouth: { pos: [3.2, 1.65, 8.5], look: [0, 2.3, 0], label: 'At the mouth' },
-  inside: { pos: [0.15, 1.6, 1.1], look: [0, 2.7, -3], label: 'Inside the funnel' },
+  inside: { pos: [0.15, 1.6, 1.1], look: [0, 2.7, -3], label: 'Inside the sculpture' },
   lawn: { pos: [-14, 1.65, 30], look: [0, 2.2, 0], label: 'Across the lawn' },
   side: { pos: [-13, 1.65, 3], look: [0, 2.4, 0.4], label: 'From the path' },
   bench: { pos: [5.0, 1.2, 1.75], look: [0, 2.4, 0.6], label: 'Bench' },

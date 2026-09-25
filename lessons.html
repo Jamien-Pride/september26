@@ -1,6 +1,6 @@
 <meta charset="utf-8">
-<title>Funnel Lessons</title>
-<meta name="description" content="Blueprint-style simulations of what the Cityside Park funnel proposal didn't account for: glare, wind, access, ground and salt.">
+<title>Deep Learning</title>
+<meta name="description" content="Blueprint-style simulations of what Deep Listening, our Cityside Park proposal, didn't account for: glare, wind, access, ground, salt and night light.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Barlow:wght@400;500&display=swap">
@@ -89,7 +89,7 @@
   <header>
     <div>
       <div class="eyebrow">Cityside Park · Treasure Island · proposal review</div>
-      <h1>What the funnel <span>didn't account for</span></h1>
+      <h1>What Deep Listening <span>didn't account for</span></h1>
     </div>
     <div class="titleblock" aria-label="Drawing information">
       <span>Site</span><b>37.8196° N, 122.3732° W</b>
@@ -104,12 +104,13 @@
     <button role="tab" id="tab-people" aria-selected="false" aria-controls="p-people">People<span class="sev" style="background:var(--sun)"></span></button>
     <button role="tab" id="tab-ground" aria-selected="false" aria-controls="p-ground">Ground<span class="sev" style="background:var(--sun)"></span></button>
     <button role="tab" id="tab-salt" aria-selected="false" aria-controls="p-salt">Salt air<span class="sev" style="background:var(--sun)"></span></button>
+    <button role="tab" id="tab-night" aria-selected="false" aria-controls="p-night">Night light<span class="sev" style="background:var(--sun)"></span></button>
   </nav>
 
   <!-- SUN -->
   <section class="panel" id="p-sun" role="tabpanel" aria-labelledby="tab-sun">
     <div class="two">
-      <div class="sheet view3d" id="sun3d"><span class="cap">3D · sun rays traced through the funnel · drag to orbit</span></div>
+      <div class="sheet view3d" id="sun3d"><span class="cap">3D · sun rays traced through the sculpture · drag to orbit</span></div>
       <div class="sheet">
         <span class="cap">Glare calendar · brightest reflected spot at head height · amber 1× sun, red 2× · cyan dot = 2× or more on the pad · click to jump</span>
         <canvas id="calendar" height="230" aria-label="Glare calendar"></canvas>
@@ -139,7 +140,7 @@
         <h2>Why it matters</h2>
         <p>The mouth faces <b>229°</b>; the winter sun sets at <b>241°</b>. A cone of mirrors pointed at the low sun bounces light across itself and focuses it toward the axis.</p>
         <p>Over a year: <b>about 550 hours</b> with a spot at head height at 1× sun or more, peaking at <b>2.2×</b> in late December. There's also a <b>3.8×</b> line on the pad in early November and early February, when the sun lines up with the axis.</p>
-        <p>It all lands within about 11 ft of the pad: inside the funnel and just past the throat, where people were invited to walk through.</p>
+        <p>It all lands within about 11 ft of the pad: inside the sculpture and just past the throat, where people were invited to walk through.</p>
       </div>
     </aside>
   </section>
@@ -176,7 +177,7 @@
           <div><small>Throat wind</small><span class="big" id="w-mph">—</span></div>
         </div>
         <span class="tag" id="w-flag">—</span>
-        <div class="row"><label>Wind force on the funnel (3D simulation)</label><span class="num" id="w-force">—</span></div>
+        <div class="row"><label>Wind force on the sculpture (3D simulation)</label><span class="num" id="w-force">—</span></div>
         <div class="row"><label>Design force, 92 mph gust (ASCE 7-22, Exposure D)</label><span class="num">4,000–4,500 lbf</span></div>
         <div class="row"><label>Overturning moment at the pad</label><span class="num">32,000–37,000 ft-lbf</span></div>
         <div class="row"><label>Uplift at design wind</label><span class="num">~2,100 lbf</span></div>
@@ -194,7 +195,7 @@
       <div class="card">
         <h2>Why it matters</h2>
         <p>The 175 sq ft mouth is a scoop turned 18–41° off the island's prevailing west and west-southwest winds. SF's walking-comfort yardstick is <b>11 mph</b>, exceeded in no more than 10% of daytime hours. The open lawn already exceeds it in <b>24–36%</b> of them; in the throat that rises to <b>34–64%</b>.</p>
-        <p>These are real 2D flow solutions (lattice Boltzmann) on two slices cut from the exact funnel. Each slice lets air escape only one way (around the sides, or over the top), and the solver's low Reynolds number smooths the flow, so treat them as a guide. Settled, they give <b>1.3–1.4×</b> in the throat and up to <b>~2×</b> around the rim edges. Published wind-concentrator studies report 1–2.6×, mostly from simulations, so I use <b>1.2–1.5×</b> for the throat.</p>
+        <p>These are real 2D flow solutions (lattice Boltzmann) on two slices cut from the exact shape. Each slice lets air escape only one way (around the sides, or over the top), and the solver's low Reynolds number smooths the flow, so treat them as a guide. Settled, they give <b>1.3–1.4×</b> in the throat and up to <b>~2×</b> around the rim edges. Published wind-concentrator studies report 1–2.6×, mostly from simulations, so I use <b>1.2–1.5×</b> for the throat.</p>
         <p>A full 3D simulation (OpenFOAM, six wind directions) puts the force coefficient at about <b>1.5</b>, highest for the ordinary west wind, acting <b>8 ft</b> up with uplift of about half the horizontal force.</p>
       </div>
     </aside>
@@ -248,7 +249,7 @@
   <!-- SALT -->
   <section class="panel" id="p-salt" role="tabpanel" aria-labelledby="tab-salt" hidden>
     <div class="two">
-      <div class="sheet"><span class="cap">Front section · where rain rinses salt off, and where it never does</span><svg id="svg-salt" viewBox="0 0 1000 540" role="img" aria-label="Rain exposure of the funnel's surfaces"></svg></div>
+      <div class="sheet"><span class="cap">Front section · where rain rinses salt off, and where it never does</span><svg id="svg-salt" viewBox="0 0 1000 540" role="img" aria-label="Rain exposure of the sculpture's surfaces"></svg></div>
     </div>
     <aside>
       <div class="card">
@@ -261,8 +262,30 @@
       </div>
       <div class="card">
         <h2>Why it matters</h2>
-        <p>Stainless tea-stains where chlorides sit and nothing washes them away. Because the funnel's top panel covers its whole depth, <b>vertical rain never reaches any of the inside</b>, where the mirror finish matters most. Only storm rain blown into the mouth reaches it.</p>
+        <p>Stainless tea-stains where chlorides sit and nothing washes them away. Because the sculpture's top panel covers its whole depth, <b>vertical rain never reaches any of the inside</b>, where the mirror finish matters most. Only storm rain blown into the mouth reaches it.</p>
         <p>Needs 316L or duplex stainless, AAMA 2605 or porcelain enamel colours, isolated fasteners and a washing schedule.</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- NIGHT -->
+  <section class="panel" id="p-night" role="tabpanel" aria-labelledby="tab-night" hidden>
+    <div class="two">
+      <div class="sheet"><span class="cap above">Side elevation through the axis · the two in-grade uplights and where the mirror strips send their light</span><svg id="svg-night" viewBox="0 0 1000 560" role="img" aria-label="Side elevation with uplight beams reflecting out of the mouth"></svg></div>
+    </div>
+    <aside>
+      <div class="card">
+        <h2>Night light</h2>
+        <div class="row"><label>Fixtures</label><span class="num">2 in-grade, aimed up</span></div>
+        <div class="row"><label>Inside a vegetated park of 2+ acres</label><span class="num">yes · Cityside Park</span></div>
+        <div class="row"><label>Within 300 ft of open water</label><span class="num">yes · ~280 ft</span></div>
+        <div class="row"><label>SF bird-safe rule, Sec. 139(c)(1)(B)</label><span class="num">“No uplighting” <span class="tag hot">conflicts</span></span></div>
+      </div>
+      <div class="card">
+        <h2>Why it matters</h2>
+        <p>San Francisco's bird-safe code treats open space of <b>2 acres or more</b> dominated by vegetation or open water as an Urban Bird Refuge. For buildings inside one, or within <b>300 ft</b> of one, it says lighting shall be minimal and shielded and <b>“No uplighting shall be used.”</b> The pad is inside Cityside Park and just under 300 ft from the Bay.</p>
+        <p>The rule is written for buildings, so a sculpture may not strictly count, but a reviewer would read it as the standard. The proposal drew two fixtures firing straight up into a mirror-lined shell. In this section the mirror strips turn the beams around and send them out of the mouth, across the lawn at eye level and up into the sky.</p>
+        <p>The fix: drop the uplights. If the piece must be lit, use shielded fixtures aimed down onto the painted panels, 3000 K or warmer, dimmed late and on a timer (DarkSky's five principles).</p>
       </div>
     </aside>
   </section>
