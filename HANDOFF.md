@@ -29,8 +29,8 @@ are in notes/; the site wind analysis is tools/site_wind.py -> data/site_wind.js
 - Force coefficient: 3D OpenFOAM runs (tools/cfd, data/cfd_results.json) give Cf ~1.5 after an
   8% hollow-hemisphere correction; force acts 8.1 ft up; uplift ~0.5x. Gusts/flutter not modelled.
 - No boring log for Cityside Park; no as-built park grade.
-- Solaracks page (ISO 9223 distances) blocked by CAPTCHA; replaced with ASSDA.
-- amlegal.com blocked automated reads; Sec. 148/139 read from their ordinances.
+- Sites that block automated reads (amlegal Sec. 148/139, Solaracks, MDPI, DarkSky) were checked from
+  copies supplied by hand; see notes/manual_source_checks.md.
 
 ## Computed results (from the drawings; unchanged)
 - Glare: ~550 h/yr with a head-height spot >=1x sun; peak 2.2x (Dec 19, 4:40 PM);
