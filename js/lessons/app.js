@@ -313,11 +313,13 @@ const lab = new WindLab($('windplan'), $('windsec'), (st) => {
   $('w-force').textContent = `${Math.round(0.00256 * free * free * 1.4 * area).toLocaleString()} lbf`;
   $('w-warm').textContent = st.warm < 1 ? `Solver settling… ${Math.round(st.warm * 100)}%` : 'Flow settled. Values fluctuate as eddies shed.';
 });
-lab.freeMph = 20;
+lab.freeMph = 14;
 lab.setWind(windBearing, FACE);
 $('wdir').addEventListener('change', (e) => { windBearing = +e.target.value; lab.setWind(windBearing, FACE); });
 $('wspd').addEventListener('input', (e) => { lab.freeMph = +e.target.value; $('wspdv').textContent = `${lab.freeMph} mph`; });
-for (const [t, dir, v] of [['Summer morning · 8 mph', 248, 8], ['Summer afternoon · 20 mph', 248, 20], ['Strong afternoon · 27 mph', 270, 27], ['Winter storm from S · 40 mph', 180, 40]]) {
+// Head-height presets from the Treasure Island record (NCEI ISD 724943), see tools/site_wind.py:
+// summer 7 AM median, summer afternoon median and 90th percentile, and the Dec 1983 storms (46–52 mph at 10 m).
+for (const [t, dir, v] of [['Summer morning · 5 mph', 248, 5], ['Summer afternoon · 14 mph', 270, 14], ['Windy afternoon (1 in 10) · 18 mph', 248, 18], ['Winter storm from S · 40 mph', 180, 40]]) {
   const b = document.createElement('button'); b.type = 'button'; b.textContent = t;
   b.addEventListener('click', () => {
     $('wdir').value = String(dir); $('wspd').value = v; lab.freeMph = v; $('wspdv').textContent = `${v} mph`;
