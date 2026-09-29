@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Embarcadero Platform</title>
+  <meta name="description" content="A BART train pulling into an underground station, seen straight on from behind the yellow platform edge.">
+  <meta name="theme-color" content="#0b0b0c">
+  <link rel="preload" href="fonts/hind-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="scene" role="img"
+    aria-label="An underground BART platform viewed straight on. A white Fleet of the Future train glides in behind the yellow tactile edge strip, stops, and opens its doors."></canvas>
+
+  <nav class="hud" aria-label="Scene controls">
+    <button id="call" type="button"><span>Call train</span><kbd>Space</kbd></button>
+    <button id="express" type="button"><span>Express</span><kbd>X</kbd></button>
+    <button id="sound" type="button" aria-pressed="false"><span>Sound off</span><kbd>M</kbd></button>
+  </nav>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

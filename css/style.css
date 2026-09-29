@@ -1,0 +1,102 @@
+/* Hind (SIL Open Font License), self-hosted Latin subset. */
+@font-face {
+  font-family: "Hind";
+  font-weight: 500;
+  font-display: swap;
+  src: url("../fonts/hind-500.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Hind";
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/hind-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Hind";
+  font-weight: 700;
+  font-display: swap;
+  src: url("../fonts/hind-700.woff2") format("woff2");
+}
+
+:root {
+  --bg: #0b0b0c;
+  --hud-bg: rgba(12, 13, 15, 0.62);
+  --hud-border: rgba(255, 255, 255, 0.12);
+  --hud-text: #e9e7e1;
+  --hud-dim: rgba(233, 231, 225, 0.55);
+  --accent: #e8b20e;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: "Hind", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+#scene {
+  position: fixed;
+  inset: 0;
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 900ms ease;
+}
+
+body.ready #scene { opacity: 1; }
+
+.hud {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 600ms ease 400ms;
+}
+
+body.ready .hud { opacity: 1; }
+
+.hud button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px 6px 12px;
+  border: 1px solid var(--hud-border);
+  border-radius: 999px;
+  background: var(--hud-bg);
+  color: var(--hud-text);
+  font: 500 13px/1 inherit;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.hud button:hover { border-color: rgba(255, 255, 255, 0.28); }
+.hud button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hud button[aria-pressed="true"] { border-color: var(--accent); }
+
+.hud kbd {
+  font: 600 10px/1 inherit;
+  font-family: inherit;
+  color: var(--hud-dim);
+  border: 1px solid var(--hud-border);
+  border-radius: 4px;
+  padding: 3px 4px 2px;
+}
+
+@media (hover: none) {
+  .hud kbd { display: none; }
+}
