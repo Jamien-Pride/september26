@@ -71,7 +71,7 @@ export function initUI(state, cb) {
   $('heat').addEventListener('change', (e) => cb.onHeatmap(e.target.checked));
   // panel toggle
   const panel = $('panel'), tog = $('panel-toggle');
-  const setPanel = (open) => { panel.hidden = !open; tog.setAttribute('aria-expanded', String(open)); tog.textContent = open ? 'Hide controls' : 'Controls'; };
+  const setPanel = (open) => { panel.hidden = !open; document.body.classList.toggle('panel-open', open); tog.setAttribute('aria-expanded', String(open)); tog.textContent = open ? (window.innerWidth > 760 ? 'Hide controls' : 'Done') : 'Controls'; };
   setPanel(window.innerWidth > 760);
   tog.addEventListener('click', () => setPanel(panel.hidden));
 
