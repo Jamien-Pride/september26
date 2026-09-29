@@ -20,12 +20,23 @@ const bearingToLocal = (brg, el = 0) => worldToLocal(Math.sin(brg * D2R) * Math.
 // ---------------------------------------------------------------- tabs
 const tabs = [...document.querySelectorAll('[role="tab"]')];
 let active = 'sun';
-for (const t of tabs) t.addEventListener('click', () => {
-  for (const x of tabs) x.setAttribute('aria-selected', String(x === t));
+function selectTab(t, focus = false) {
+  for (const x of tabs) { const on = x === t; x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1; }
   for (const p of document.querySelectorAll('[role="tabpanel"]')) p.hidden = p.id !== t.getAttribute('aria-controls');
   active = t.id.replace('tab-', '');
+  if (focus) t.focus();
+  t.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  try { history.replaceState(null, '', '#' + active); } catch (e) { /* sandboxed */ }
   if (active === 'sun') { resizeSun(); drawCalendar(); }
-});
+}
+for (const t of tabs) {
+  t.addEventListener('click', () => selectTab(t));
+  t.addEventListener('keydown', (e) => {
+    const i = tabs.indexOf(t), n = tabs.length;
+    const j = e.key === 'ArrowRight' ? (i + 1) % n : e.key === 'ArrowLeft' ? (i - 1 + n) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1;
+    if (j >= 0) { e.preventDefault(); selectTab(tabs[j], true); }
+  });
+}
 
 // ================================================================ SUN
 const host = $('sun3d');
@@ -38,10 +49,10 @@ camera.position.set(-17, 11, 16);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.target.set(0, 1.6, 0); controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.49;
 controls.minDistance = 5; controls.maxDistance = 70;
-const INK = 0xdcecff, SUN = 0xffb13b;
+const INK = 0xe6ebf0, SUN = 0xf3b541;
 
 // ground grid (1 m) and 5 m major lines
-const grid = new THREE.GridHelper(60, 60, 0x3a6a95, 0x1d4568); grid.material.transparent = true; grid.material.opacity = 0.55; scene.add(grid);
+const grid = new THREE.GridHelper(60, 60, 0x4a535d, 0x2a3036); grid.material.transparent = true; grid.material.opacity = 0.7; scene.add(grid);
 
 const lineMat = (color, opacity = 1) => new THREE.LineBasicMaterial({ color, transparent: opacity < 1, opacity });
 const polyline = (pts, mat) => new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), mat);
@@ -264,29 +275,36 @@ function drawCalendar() {
   const L = 44, R = 12, T = 26, B = 22, w = W - L - R, h = H - T - B;
   const X = (d) => L + d / 365 * w, Y = (m) => T + (m - 300) / 960 * h;
   ctx.clearRect(0, 0, W, H);
-  ctx.fillStyle = 'rgba(5,20,38,0.6)'; ctx.fillRect(L, T, w, h);
+  const cs = getComputedStyle(document.documentElement), tok = (n) => cs.getPropertyValue(n).trim();
+  ctx.fillStyle = tok('--bg'); ctx.fillRect(L, T, w, h);
   if (glare) {
     const cw = w / 365 * 4 + 0.6, ch = h / 96 + 0.6;
     for (const [day, min, , , head, ground] of glare.rows) {
       const c = ramp(Math.max(head, 0.16));
       ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},${Math.max(0.22, c[3] / 255)})`;
       ctx.fillRect(X(day), Y(min), cw, ch);
-      if (ground >= 2) { ctx.fillStyle = '#6fd3ff'; ctx.fillRect(X(day) + cw / 2 - 1, Y(min) + ch / 2 - 1, 2.5, 2.5); }
+      if (ground >= 2) { ctx.fillStyle = tok('--water'); ctx.fillRect(X(day) + cw / 2 - 1, Y(min) + ch / 2 - 1, 2.5, 2.5); }
     }
   }
   // sunrise / sunset
-  ctx.strokeStyle = 'rgba(255,177,59,0.8)'; ctx.lineWidth = 1;
+  ctx.strokeStyle = tok('--accent'); ctx.lineWidth = 1.25;
   for (const k of [1, 2]) { ctx.beginPath(); bands.forEach((b, i) => { const y = Y(b[k]); if (i) ctx.lineTo(X(b[0]), y); else ctx.moveTo(X(b[0]), y); }); ctx.stroke(); }
   // axes
-  ctx.fillStyle = '#8fb0cf'; ctx.font = '11px IBM Plex Mono, monospace'; ctx.textAlign = 'right';
-  for (let m = 360; m <= 1260; m += 180) { ctx.fillText(fmtTime(m).replace(':00', ''), L - 6, Y(m) + 4); ctx.fillStyle = 'rgba(190,220,255,0.12)'; ctx.fillRect(L, Y(m), w, 1); ctx.fillStyle = '#8fb0cf'; }
+  ctx.fillStyle = tok('--muted'); ctx.font = '11px "Instrument Sans", Arial, sans-serif'; ctx.textAlign = 'right';
+  for (let m = 360; m <= 1260; m += 180) { ctx.fillText(fmtTime(m).replace(':00', ''), L - 6, Y(m) + 4); ctx.fillStyle = tok('--line'); ctx.fillRect(L, Y(m), w, 1); ctx.fillStyle = tok('--muted'); }
   ctx.textAlign = 'center';
   let acc = 0; for (let i = 0; i < 12; i++) { const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][i]; ctx.fillText(MONTHS[i], X(acc + days / 2), H - 6); acc += days; }
   // current marker
-  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5;
+  ctx.strokeStyle = tok('--fg'); ctx.lineWidth = 1.5;
   ctx.strokeRect(X(sunState.day) - 3, Y(sunState.min) - 3, 6, 6);
   cal._map = { L, T, w, h };
 }
+// redraw theme-coloured figures when the theme or the web font changes
+const redrawThemed = () => { drawCalendar(); };
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redrawThemed); } catch (e) { /* old browsers */ }
+new MutationObserver(redrawThemed).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+document.fonts?.ready.then(redrawThemed);
+cal.style.cursor = 'crosshair';
 cal.addEventListener('click', (e) => {
   const r = cal.getBoundingClientRect(), m = cal._map; if (!m) return;
   const d = Math.round((e.clientX - r.left - m.L) / m.w * 365), min = Math.round(((e.clientY - r.top - m.T) / m.h * 960 + 300) / 5) * 5;
@@ -337,11 +355,16 @@ for (const [t, dir, v] of [['Summer morning · 5 mph', 248, 5], ['Summer afterno
 const NS = 'http://www.w3.org/2000/svg';
 function el(tag, attrs, parent, text) {
   const e = document.createElementNS(NS, tag);
-  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  for (const k in attrs) {
+    const v = attrs[k];
+    if ((k === 'fill' || k === 'stroke') && typeof v === 'string' && /var\(|color-mix/.test(v)) e.style.setProperty(k, v);
+    else e.setAttribute(k, v);
+  }
   if (text != null) e.textContent = text;
   parent.appendChild(e); return e;
 }
-const C_INK = '#dcecff', C_MUTED = '#8fb0cf', C_HOT = '#ff5d4d', C_SUN = '#ffb13b', C_OK = '#7fe3b0';
+const C_INK = 'var(--fg)', C_MUTED = 'var(--muted)', C_HOT = 'var(--hot)', C_SUN = 'var(--accent)', C_OK = 'var(--ok)';
+const tint = (token, pct) => `color-mix(in srgb, var(--${token}) ${pct}%, transparent)`;
 function hatch(svg, id, color) {
   const defs = svg.querySelector('defs') || el('defs', {}, svg);
   const p = el('pattern', { id, width: 8, height: 8, patternUnits: 'userSpaceOnUse', patternTransform: 'rotate(45)' }, defs);
@@ -406,7 +429,7 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   el('line', { x1: 30, y1: Y0, x2: 980, y2: Y0, stroke: C_INK, 'stroke-width': 2 }, svg);
   el('rect', { x: P(-1, 0)[0], y: Y0, width: 10 * s, height: 6, fill: C_MUTED }, svg);
   const top = [P(0, 14), P(8, 6.5)];
-  el('path', { d: `M${P(0, 0)} L${top[0]} L${top[1]} L${P(8, 0)}`, fill: 'rgba(220,236,255,0.06)', stroke: C_INK, 'stroke-width': 3 }, svg);
+  el('path', { d: `M${P(0, 0)} L${top[0]} L${top[1]} L${P(8, 0)}`, fill: tint('fg', 6), stroke: C_INK, 'stroke-width': 3 }, svg);
   el('text', { x: P(0, 14)[0] - 10, y: P(0, 14)[1] - 10, fill: C_INK, 'font-size': 13, 'text-anchor': 'end' }, svg, 'mouth rim 14 ft');
   el('text', { x: P(8, 6.5)[0] + 10, y: P(8, 6.5)[1] - 6, fill: C_INK, 'font-size': 13 }, svg, 'throat top 6 ft 6 in');
   // ridge angle
@@ -425,17 +448,17 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
 
 // Soil profile + elevation ladder
 (function soil() {
-  const svg = $('svg-soil'); hatch(svg, 'fillHatch', 'rgba(255,177,59,0.35)');
+  const svg = $('svg-soil'); hatch(svg, 'fillHatch', tint('accent', 40));
   const x0 = 60, w = 320;
   const layers = [
     ['Hydraulic sand fill (1936–37)', 'about 15–45 ft · liquefied in 1989', 40, 160, 'url(#fillHatch)', C_SUN],
-    ['Natural shoal sand', 'fill + shoal sand ≈ 30–50 ft · loose', 160, 230, 'rgba(255,177,59,0.12)', C_SUN],
-    ['Young Bay Mud', '10–120 ft thick · soft, still settling', 230, 330, 'rgba(111,211,255,0.12)', C_MUTED],
-    ['Older Bay deposits', 'down to bedrock', 330, 470, 'rgba(111,211,255,0.06)', C_MUTED],
-    ['Bedrock', 'about 100–400 ft down', 470, 530, 'rgba(220,236,255,0.08)', C_MUTED],
+    ['Natural shoal sand', 'fill + shoal sand ≈ 30–50 ft · loose', 160, 230, tint('accent', 12), C_SUN],
+    ['Young Bay Mud', '10–120 ft thick · soft, still settling', 230, 330, tint('water', 12), C_MUTED],
+    ['Older Bay deposits', 'down to bedrock', 330, 470, tint('water', 6), C_MUTED],
+    ['Bedrock', 'about 100–400 ft down', 470, 530, tint('fg', 6), C_MUTED],
   ];
   for (const [name, sub, y1, y2, fill, col] of layers) {
-    el('rect', { x: x0, y: y1, width: w, height: y2 - y1, fill, stroke: 'rgba(190,220,255,0.3)' }, svg);
+    el('rect', { x: x0, y: y1, width: w, height: y2 - y1, fill, stroke: 'var(--line)' }, svg);
     el('text', { x: x0 + 12, y: y1 + 24, fill: col === C_SUN ? C_INK : C_INK, 'font-size': 14 }, svg, name);
     el('text', { x: x0 + 12, y: y1 + 42, fill: col, 'font-size': 12 }, svg, sub);
   }
@@ -461,7 +484,7 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
 
 // Salt: rain exposure on a front section
 (function salt() {
-  const svg = $('svg-salt'); hatch(svg, 'never', 'rgba(255,93,77,0.7)'); hatch(svg, 'shelter', 'rgba(255,177,59,0.6)');
+  const svg = $('svg-salt'); hatch(svg, 'never', tint('hot', 70)); hatch(svg, 'shelter', tint('accent', 60));
   const s = 24, X0 = 420, Y0 = 470;
   const P = (x, y) => [X0 + x * s, Y0 - y * s];
   el('line', { x1: 40, y1: Y0, x2: 820, y2: Y0, stroke: C_INK, 'stroke-width': 2 }, svg);
@@ -469,7 +492,7 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   const mouth = circ(9, 5), throatPts = circ(3.5, 3);
   // interior (never rinsed): region inside mouth outline
   el('path', { d: 'M' + mouth.map((p) => p.join(' ')).join('L') + 'Z', fill: 'url(#never)', stroke: 'none' }, svg);
-  el('path', { d: 'M' + throatPts.map((p) => p.join(' ')).join('L') + 'Z', fill: '#0a2440', stroke: C_INK, 'stroke-width': 2 }, svg);
+  el('path', { d: 'M' + throatPts.map((p) => p.join(' ')).join('L') + 'Z', fill: 'var(--surface)', stroke: C_INK, 'stroke-width': 2 }, svg);
   el('path', { d: 'M' + mouth.map((p) => p.join(' ')).join('L'), fill: 'none', stroke: C_INK, 'stroke-width': 4 }, svg);
   // outer lower flanks facing down (sheltered) marked on the outline
   for (const side of [-1, 1]) {
@@ -480,7 +503,7 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   for (let x = -12; x <= 12; x += 1.2) {
     const topY = Math.abs(x) < 9 ? 5 + Math.sqrt(81 - x * x) : 0;
     const [px, py] = P(x, 18), [, qy] = P(x, topY + 0.3);
-    el('line', { x1: px, y1: py, x2: px, y2: qy, stroke: 'rgba(111,211,255,0.55)', 'stroke-dasharray': '6 7' }, svg);
+    el('line', { x1: px, y1: py, x2: px, y2: qy, stroke: tint('water', 60), 'stroke-dasharray': '6 7' }, svg);
   }
   // wind-driven rain into the mouth
   el('path', { d: `M${P(-13, 12).join(' ')} Q${P(-8, 9).join(' ')} ${P(-2, 6).join(' ')}`, fill: 'none', stroke: C_OK, 'stroke-width': 2, 'stroke-dasharray': '3 5' }, svg);
@@ -490,11 +513,11 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   const lg = (y, fill, text) => { el('rect', { x: 740, y, width: 22, height: 14, fill }, svg); el('text', { x: 770, y: y + 12, fill: C_INK, 'font-size': 13 }, svg, text); };
   lg(60, 'url(#never)', 'inside: never rinsed');
   lg(84, 'url(#shelter)', 'lower outside: sheltered');
-  lg(108, 'rgba(111,211,255,0.55)', 'rain');
+  lg(108, tint('water', 60), 'rain');
   // distance bar
   const bx = 60, by = 505, ft = 0.09; // px per ft
   el('line', { x1: bx, y1: by, x2: bx + 300 * ft, y2: by, stroke: C_HOT, 'stroke-width': 4 }, svg);
-  el('line', { x1: bx, y1: by + 10, x2: bx + 3280 * ft, y2: by + 10, stroke: 'rgba(255,177,59,0.5)', 'stroke-width': 4 }, svg);
+  el('line', { x1: bx, y1: by + 10, x2: bx + 3280 * ft, y2: by + 10, stroke: tint('accent', 50), 'stroke-width': 4 }, svg);
   el('text', { x: bx + 300 * ft + 8, y: by + 4, fill: C_HOT, 'font-size': 12 }, svg, '300 ft to the Bay');
   el('text', { x: bx + 3280 * ft + 8, y: by + 14, fill: C_SUN, 'font-size': 12 }, svg, 'Coastal zone (ASSDA): within 1 km (3,280 ft) of still marine water');
 })();
@@ -506,12 +529,12 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   const P = (z, y) => [X0 - z * s, Y0 - y * s];           // z = ft toward the mouth, y = ft up
   const MZ = 4, TZ = -4, MTOP = 14, TTOP = 6.5;
   el('line', { x1: 40, y1: Y0, x2: 960, y2: Y0, stroke: C_INK, 'stroke-width': 2 }, svg);
-  el('rect', { x: P(10, 0)[0], y: Y0, width: 20 * s, height: 8, fill: 'rgba(220,236,255,0.25)' }, svg);
+  el('rect', { x: P(10, 0)[0], y: Y0, width: 20 * s, height: 8, fill: tint('fg', 20) }, svg);
   // sculpture silhouette: mouth rim, top ruling (mirror strip on the inside), throat rim
   const [ma, mb] = [P(MZ, 0), P(MZ, MTOP)], [ta, tb] = [P(TZ, 0), P(TZ, TTOP)];
   el('line', { x1: ma[0], y1: ma[1], x2: mb[0], y2: mb[1], stroke: C_INK, 'stroke-width': 3 }, svg);
   el('line', { x1: ta[0], y1: ta[1], x2: tb[0], y2: tb[1], stroke: C_INK, 'stroke-width': 3 }, svg);
-  el('line', { x1: mb[0], y1: mb[1], x2: tb[0], y2: tb[1], stroke: '#ffffff', 'stroke-width': 4 }, svg);
+  el('line', { x1: mb[0], y1: mb[1], x2: tb[0], y2: tb[1], stroke: C_INK, 'stroke-width': 4 }, svg);
   el('text', { x: (mb[0] + tb[0]) / 2 + 12, y: (mb[1] + tb[1]) / 2 - 14, fill: C_INK, 'font-size': 13 }, svg, 'mirror strip (inside of top panel)');
   // fixtures at z = 0.25 m, aimed up and back (as modelled in the site visualization)
   const fz = 0.25 / 0.3048, [fx, fy] = P(fz, 0);
@@ -528,15 +551,15 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
     const hz = fz + t * d[0], hy = t * d[1];
     if (t <= 0 || hz > MZ || hz < TZ) continue;
     const [hx, hyy] = P(hz, hy);
-    el('line', { x1: fx, y1: fy, x2: hx, y2: hyy, stroke: 'rgba(255,177,59,0.55)', 'stroke-width': 1.5 }, svg);
+    el('line', { x1: fx, y1: fy, x2: hx, y2: hyy, stroke: tint('accent', 60), 'stroke-width': 1.5 }, svg);
     const dn = d[0] * nIn[0] + d[1] * nIn[1], r = [d[0] - 2 * dn * nIn[0], d[1] - 2 * dn * nIn[1]];
     if (r[0] <= 0) continue;                                     // only rays heading out of the mouth
     const tm = (MZ - hz) / r[0], ey = hy + tm * r[1];
     if (ey < 0) continue;
     const L = r[1] < 0 ? Math.min(16, -ey / r[1]) : 16, [ex, eyy] = P(MZ + L * r[0], ey + L * r[1]);   // stop at the lawn
     const [mx, my] = P(MZ, ey);
-    el('line', { x1: hx, y1: hyy, x2: mx, y2: my, stroke: 'rgba(255,255,255,0.75)', 'stroke-width': 1.2 }, svg);
-    el('line', { x1: mx, y1: my, x2: ex, y2: eyy, stroke: 'rgba(255,255,255,0.75)', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }, svg);
+    el('line', { x1: hx, y1: hyy, x2: mx, y2: my, stroke: tint('fg', 60), 'stroke-width': 1.2 }, svg);
+    el('line', { x1: mx, y1: my, x2: ex, y2: eyy, stroke: tint('fg', 60), 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }, svg);
   }
   person(svg, P(15.5, 0)[0], Y0, 66, s / 12, 'lawn, eye level', C_MUTED);
   el('text', { x: 50, y: 34, fill: C_INK, 'font-size': 13 }, svg, 'Reflected light leaves the mouth: down onto the lawn,');
@@ -566,5 +589,6 @@ function loop() {
 }
 resizeSun();
 updateSun();
+{ const t0 = document.getElementById('tab-' + location.hash.slice(1)); if (t0 && t0 !== tabs[0]) selectTab(t0); }
 requestAnimationFrame(loop);
 window.__lessons = { lab, sunState, updateSun };
