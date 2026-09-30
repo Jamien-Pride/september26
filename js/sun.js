@@ -34,6 +34,7 @@ export function sunPosition(date, lat, lon) {
   const cosZ = Math.sin(latr) * Math.sin(decl) + Math.cos(latr) * Math.cos(decl) * Math.cos(har);
   const zen = Math.acos(Math.min(1, Math.max(-1, cosZ)));
   let elev = 90 - zen * R2D;
+  const geometric = elev;
   // atmospheric refraction (NOAA)
   let refr = 0;
   if (elev > 85) refr = 0;
@@ -43,7 +44,7 @@ export function sunPosition(date, lat, lon) {
   elev += refr / 3600;
   let az = Math.atan2(Math.sin(har), Math.cos(har) * Math.sin(latr) - Math.tan(decl) * Math.cos(latr)) * R2D + 180;
   az = (az + 360) % 360;
-  return { azimuth: az, elevation: elev, declination: decl * R2D, eqTime };
+  return { azimuth: az, elevation: elev, geometricElevation: geometric, declination: decl * R2D, eqTime };
 }
 
 export function moonPosition(date, lat, lon) {
@@ -121,11 +122,13 @@ export function tzAbbrev(date) {
 
 // Find local-minute times of sunrise/sunset/civil twilight/solar noon for a day.
 export function dayEvents(y, m, d, lat, lon) {
-  const samples = [];
-  for (let min = 0; min <= 1440; min += 2) samples.push([min, sunPosition(pacificToDate(y, m, d, min), lat, lon).elevation]);
+  // samples carry apparent elevation (for display); event thresholds are defined on geometric
+  // elevation (-0.833° = refraction + solar semi-diameter), so cross on that to avoid counting refraction twice
+  const samples = [], geo = [];
+  for (let min = 0; min <= 1440; min += 2) { const s = sunPosition(pacificToDate(y, m, d, min), lat, lon); samples.push([min, s.elevation]); geo.push([min, s.geometricElevation]); }
   const cross = (thr, rising) => {
-    for (let i = 1; i < samples.length; i++) {
-      const [m0, e0] = samples[i - 1], [m1, e1] = samples[i];
+    for (let i = 1; i < geo.length; i++) {
+      const [m0, e0] = geo[i - 1], [m1, e1] = geo[i];
       if (rising ? (e0 < thr && e1 >= thr) : (e0 >= thr && e1 < thr)) return m0 + (thr - e0) / (e1 - e0) * (m1 - m0);
     }
     return null;

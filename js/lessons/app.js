@@ -107,7 +107,7 @@ scene.add(polyline([new THREE.Vector3(0, 0.02, 0), north.clone().setY(0.02)], li
 label('N', north.clone().multiplyScalar(1.06), 'strong');
 label('Lawn (mouth side)', new THREE.Vector3(0, 0, 11));
 label('Avenue of the Palms', new THREE.Vector3(0, 0, -24));
-label('Bay, 300 ft', bearingToLocal(242.4).multiplyScalar(22));
+label('Bay, 275 ft', bearingToLocal(242.4).multiplyScalar(22));
 label('Pad 10 × 20 ft', new THREE.Vector3(PW + 1.8, 0, -PD - 0.6));
 
 // sun dome: solstice / equinox paths and the "sun in the mouth" ring
@@ -319,7 +319,7 @@ const lab = new WindLab($('windplan'), $('windsec'), (st) => {
   $('w-plan').textContent = `${st.plan.toFixed(2)}×`;
   $('w-sec').textContent = Math.abs(lab.delta) > 30 && Math.abs(lab.delta) < 150 ? 'n/a (slice misses the throat)' : `${st.section.toFixed(2)}×`;
   const free = lab.freeMph, side = Math.abs(lab.delta) > 60 && Math.abs(lab.delta) < 120;
-  // Throat estimate: 2D solutions of this shape settle at 1.2–1.3x; allow up to 1.5x for 3D and higher Reynolds number.
+  // Throat estimate: 2D solutions of this shape settle at 1.3–1.4x; allow up to 1.5x for 3D and higher Reynolds number.
   const r0 = side ? 1.0 : 1.2, r1 = side ? 1.1 : 1.5;
   $('w-3d').textContent = side ? 'about 1× (side-on)' : '1.2–1.5×';
   $('w-mph').textContent = `${Math.round(free * r0)}–${Math.round(free * r1)} mph`;
@@ -342,7 +342,7 @@ $('wdir').addEventListener('change', (e) => { windBearing = +e.target.value; lab
 $('wspd').addEventListener('input', (e) => { lab.freeMph = +e.target.value; $('wspdv').textContent = `${lab.freeMph} mph`; });
 // Head-height presets from the Treasure Island record (NCEI ISD 724943), see tools/site_wind.py:
 // summer 7 AM median, summer afternoon median and 90th percentile, and the Dec 1983 storms (46–52 mph at 10 m).
-for (const [t, dir, v] of [['Summer morning · 5 mph', 248, 5], ['Summer afternoon · 14 mph', 270, 14], ['Windy afternoon (1 in 10) · 18 mph', 248, 18], ['Winter storm from S · 40 mph', 180, 40]]) {
+for (const [t, dir, v] of [['Summer morning · 5 mph', 248, 5], ['Summer afternoon · 14 mph', 270, 14], ['Windy afternoon (1 in 10) · 18 mph', 248, 18], ['Winter storm from SSW · 38 mph', 200, 38]]) {
   const b = document.createElement('button'); b.type = 'button'; b.textContent = t;
   b.addEventListener('click', () => {
     $('wdir').value = String(dir); $('wspd').value = v; lab.freeMph = v; $('wspdv').textContent = `${v} mph`;
@@ -414,7 +414,7 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   // 31 degree ramp at the floor
   const [tx, ty] = P(floorHalf, 0);
   el('line', { x1: tx, y1: ty, x2: tx + 90 * Math.cos(31 * D2R), y2: ty - 90 * Math.sin(31 * D2R), stroke: C_SUN, 'stroke-width': 2 }, svg);
-  el('text', { x: tx + 70, y: ty - 18, fill: C_SUN, 'font-size': 13 }, svg, '31° inner slope: a runnable ramp');
+  el('text', { x: tx + 70, y: ty - 18, fill: C_SUN, 'font-size': 13 }, svg, '31° in this section, ~40° at its steepest: a runnable ramp');
   // people
   person(svg, X0 - 12 * s, Y0, 74, s, "6'2\"");
   person(svg, X0 + 15 * s, Y0, 76, s, "6'4\", off-centre", C_HOT);
@@ -451,7 +451,7 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   const svg = $('svg-soil'); hatch(svg, 'fillHatch', tint('accent', 40));
   const x0 = 60, w = 320;
   const layers = [
-    ['Hydraulic sand fill (1936–37)', 'about 15–45 ft · liquefied in 1989', 40, 160, 'url(#fillHatch)', C_SUN],
+    ['Hydraulic sand fill (1936–37)', 'about 15–40 ft · liquefied in 1989', 40, 160, 'url(#fillHatch)', C_SUN],
     ['Natural shoal sand', 'fill + shoal sand ≈ 30–50 ft · loose', 160, 230, tint('accent', 12), C_SUN],
     ['Young Bay Mud', '10–120 ft thick · soft, still settling', 230, 330, tint('water', 12), C_MUTED],
     ['Older Bay deposits', 'down to bedrock', 330, 470, tint('water', 6), C_MUTED],
@@ -516,10 +516,10 @@ function person(svg, x, y0, hIn, s, labelText, color = C_MUTED) {
   lg(108, tint('water', 60), 'rain');
   // distance bar
   const bx = 60, by = 505, ft = 0.09; // px per ft
-  el('line', { x1: bx, y1: by, x2: bx + 300 * ft, y2: by, stroke: C_HOT, 'stroke-width': 4 }, svg);
+  el('line', { x1: bx, y1: by, x2: bx + 275 * ft, y2: by, stroke: C_HOT, 'stroke-width': 4 }, svg);
   el('line', { x1: bx, y1: by + 10, x2: bx + 3280 * ft, y2: by + 10, stroke: tint('accent', 50), 'stroke-width': 4 }, svg);
-  el('text', { x: bx + 300 * ft + 8, y: by + 4, fill: C_HOT, 'font-size': 12 }, svg, '300 ft to the Bay');
-  el('text', { x: bx + 3280 * ft + 8, y: by + 14, fill: C_SUN, 'font-size': 12 }, svg, 'Coastal zone (ASSDA): within 1 km (3,280 ft) of still marine water');
+  el('text', { x: bx + 275 * ft + 8, y: by + 4, fill: C_HOT, 'font-size': 12 }, svg, '275 ft to the Bay');
+  el('text', { x: bx + 3280 * ft + 8, y: by + 14, fill: C_SUN, 'font-size': 12 }, svg, 'Tea staining most likely within 1 km (3,280 ft) of still marine water (ASSDA)');
 })();
 
 // Night light: side elevation (plane of symmetry), uplight beams reflected off the mirrored top panel

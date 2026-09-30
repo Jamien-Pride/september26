@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { sunPosition, pacificToDate } from '../js/sun.js';
 import { ReflectedLight } from '../js/caustics.js';
 import { writeFileSync } from 'fs';
-const LAT = 37.81958, LON = -122.37321, FACE = 229.4, R = Math.PI / 180;
+const LAT = 37.81958, LON = -122.37321, FACE = +(process.env.FACE || 229.4), R = Math.PI / 180; // FACE=0 node tools/glare_year.mjs 4 60000 out.json for a north-facing mouth
 // world->sculpture-local rotation (sculpture rotation.y = atan2(fx, fz))
 const f = { x: Math.sin(FACE * R), z: -Math.cos(FACE * R) };
 const ry = Math.atan2(f.x, f.z);
